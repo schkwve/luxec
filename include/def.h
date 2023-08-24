@@ -23,6 +23,10 @@ enum {
 	T_STAR,
 	T_SLASH,
 
+	T_PRINT,
+
+	T_SEMI,
+
 	T_INTLIT,
 	T_EOF
 };

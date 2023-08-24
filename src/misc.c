@@ -8,12 +8,25 @@
  * work. If not, see <http://creativecommons.org/licenses/by-nd/4.0/>.
  */
 
-#ifndef __GEN_H_
-#define __GEN_H_
+#include <stdlib.h>
+#include <stdio.h>
 
-#include <ast.h>
+#include <data.h>
 
-int gen_ast(struct ast_node *node);
-void generate_code(struct ast_node *node);
+#include <misc.h>
+#include <scanner.h>
 
-#endif /* __GEN_H_ */
+void match(int t, char *what)
+{
+	if (Token.token == t) {
+		scan(&Token);
+	} else {
+		printf("%s expected on line %d\n", what, Line);
+		exit(1);
+	}
+}
+
+void semi(void)
+{
+	match(T_SEMI, ";");
+}

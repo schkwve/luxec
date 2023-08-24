@@ -19,9 +19,11 @@
 
 #include <ast.h>
 #include <expr.h>
+#include <codegen.h>
 #include <gen.h>
 #include <interp.h>
 #include <scanner.h>
+#include <statement.h>
 
 int main(int argc, char *argv[])
 {
@@ -37,12 +39,13 @@ int main(int argc, char *argv[])
 
 	OutFile = fopen("out.asm", "w");
 
-	struct ast_node *node;
-
 	scan(&Token);
-	node = binexpr(0);
-	printf("%d\n", interpret_ast(node));
-	generate_code(node);
+	gen_preamble();
+	statements();
+	gen_postamble();
+
+	fclose(InFile);
+	fclose(OutFile);
 
 	return 0;
 }

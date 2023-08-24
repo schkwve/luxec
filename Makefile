@@ -47,4 +47,4 @@ $(BUILD_DIR)/%.o: %.c
 .PHONY: clean
 clean:
 	@printf " CLEAN\n"
-	@rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR) out.asm

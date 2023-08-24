@@ -15,109 +15,98 @@
 
 #include <codegen.h>
 
-static int reg_is_free[4];
-static char *reglist[4] = {
-	"r8",
-	"r9",
-	"r10",
-	"r11",
-};
+static int freereg[4];
+static char *reglist[4] = { "%r8", "%r9", "%a0", "%a1" };
 
-static int reg_alloc(void)
+// Set all registers as available
+void free_allregs(void)
+{
+	freereg[0] = freereg[1] = freereg[2] = freereg[3] = 1;
+}
+
+static int alloc_reg(void)
 {
 	for (int i = 0; i < 4; i++) {
-		if (reg_is_free[i]) {
-			reg_is_free[i] = 0;
+		if (freereg[i]) {
+			freereg[i] = 0;
 			return i;
 		}
 	}
-
-	fprintf(stderr, "Out of registers\n");
+	fprintf(stderr, "Out of registers!\n");
 	exit(1);
 }
 
-static void reg_free(int reg)
+static void free_reg(int reg)
 {
-	if (reg_is_free[reg] != 0) {
+	if (freereg[reg] != 0) {
 		fprintf(stderr, "Error trying to free register %d\n", reg);
 		exit(1);
 	}
-
-	reg_is_free[reg] = 1;
+	freereg[reg] = 1;
 }
 
-void free_allregs(void)
-{
-	reg_is_free[0] = 1;
-	reg_is_free[1] = 1;
-	reg_is_free[2] = 1;
-	reg_is_free[3] = 1;
-}
-
-void cg_preamble()
+void cgpreamble()
 {
 	free_allregs();
-	fputs("\tglobal\tmain\n"
-		  "\textern\tprintf\n"
-		  "\tsection\t.text\n"
-		  "LC0:\n"
+	fputs("\t.text\n"
+		  ".LC0:\n"
 		  "\t.string\t\"%d\\n\"\n"
 		  "printint:\n"
-		  "\tpush\trbp\n"
-		  "\tmov\trbp, rsp\n"
-		  "\tsub\trsp, 16\n"
-		  "\tmov\t[rbp-4], edi\n"
-		  "\tmov\teax, [rbp-4]\n"
-		  "\tmov\tesi, eax\n"
-		  "\tlea\trdi, [rel LC0]\n"
-		  "\tmov\teax, 0\n"
-		  "\tcall printf\n"
+		  "\tpushq\t%rbp\n"
+		  "\tmovq\t%rsp, %rbp\n"
+		  "\tsubq\t$16, %rsp\n"
+		  "\tmovl\t%edi, -4(%rbp)\n"
+		  "\tmovl\t-4(%rbp), %eax\n"
+		  "\tmovl\t%eax, %esi\n"
+		  "\tleaq	.LC0(%rip), %rdi\n"
+		  "\tmovl	$0, %eax\n"
+		  "\tcall	printf@PLT\n"
 		  "\tnop\n"
 		  "\tleave\n"
 		  "\tret\n"
 		  "\n"
+		  "\t.globl\tmain\n"
+		  "\t.type\tmain, @function\n"
 		  "main:\n"
-		  "\tpush\trbp\n"
-		  "\tmov\trbp, rsp\n",
+		  "\tpushq\t%rbp\n"
+		  "\tmovq	%rsp, %rbp\n",
 		  OutFile);
 }
 
-void cg_postamble()
+void cgpostamble()
 {
-	fprintf(OutFile, "\tmov\teax, 0\n"
-					 "\tpop rbp\n"
-					 "\tret\n");
+	fputs("\tmovl	$0, %eax\n"
+		  "\tpopq	%rbp\n"
+		  "\tret\n",
+		  OutFile);
 }
 
-int cgload(int val)
+int cgload(int value)
 {
-	int r = reg_alloc();
+	int r = alloc_reg();
 
-	fprintf(OutFile, "\tmovq\t%d, %s\n", val, reglist[r]);
+	fprintf(OutFile, "\tmovq\t$%d, %s\n", value, reglist[r]);
 	return r;
 }
 
 int cgadd(int a, int b)
 {
 	fprintf(OutFile, "\taddq\t%s, %s\n", reglist[a], reglist[b]);
-	reg_free(a);
-
+	free_reg(a);
 	return b;
 }
 
 int cgsub(int a, int b)
 {
 	fprintf(OutFile, "\tsubq\t%s, %s\n", reglist[b], reglist[a]);
-	reg_free(b);
-
+	free_reg(b);
 	return a;
 }
 
 int cgmul(int a, int b)
 {
 	fprintf(OutFile, "\timulq\t%s, %s\n", reglist[a], reglist[b]);
-	reg_free(a);
-
+	free_reg(a);
 	return b;
 }
 
@@ -127,14 +116,33 @@ int cgdiv(int a, int b)
 	fprintf(OutFile, "\tcqo\n");
 	fprintf(OutFile, "\tidivq\t%s\n", reglist[b]);
 	fprintf(OutFile, "\tmovq\t%%rax,%s\n", reglist[a]);
-	reg_free(b);
-
+	free_reg(b);
 	return a;
 }
 
-void cg_printint(int a)
+void cgprintint(int r)
 {
-	fprintf(OutFile, "\tmovq\t%s, %%rdi\n", reglist[a]);
+	fprintf(OutFile, "\tmovq\t%s, %%rdi\n", reglist[r]);
 	fprintf(OutFile, "\tcall\tprintint\n");
-	reg_free(a);
+	free_reg(r);
+}
+
+void gen_preamble()
+{
+	cgpreamble();
+}
+
+void gen_postamble()
+{
+	cgpostamble();
+}
+
+void gen_freeregs()
+{
+	free_allregs();
+}
+
+void gen_printint(int reg)
+{
+	cgprintint(reg);
 }

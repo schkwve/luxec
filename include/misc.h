@@ -8,18 +8,10 @@
  * work. If not, see <http://creativecommons.org/licenses/by-nd/4.0/>.
  */
 
-#ifndef __CODEGEN_H_
-#define __CODEGEN_H_
+#ifndef __MISC_H_
+#define __MISC_H_
 
-int cgload(int val);
-int cgadd(int a, int b);
-int cgsub(int a, int b);
-int cgmul(int a, int b);
-int cgdiv(int a, int b);
+void match(int t, char *what);
+void semi(void);
 
-void gen_preamble();
-void gen_postamble();
-void gen_freeregs();
-void gen_printint(int a);
-
-#endif /* __CODEGEN_H_ */
+#endif /* __MISC_H_ */

@@ -73,7 +73,7 @@ struct ast_node *binexpr(int ptp)
 	left = primary();
 
 	token_type = Token.token;
-	if (Token.token == T_EOF) {
+	if (token_type == T_SEMI) {
 		return left;
 	}
 
@@ -84,9 +84,14 @@ struct ast_node *binexpr(int ptp)
 		left = make_ast_node(arith_op(token_type), left, right, 0);
 
 		token_type = Token.token;
-		if (token_type == T_EOF) {
+		if (token_type == T_SEMI) {
 			return left;
 		}
+	}
+
+	token_type = Token.token;
+	if (token_type == T_SEMI) {
+		return left;
 	}
 
 	return left;

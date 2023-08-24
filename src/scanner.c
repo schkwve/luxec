@@ -60,7 +60,43 @@ static int chrpos(char *s, int c)
 	char *p;
 
 	p = strchr(s, c);
-	return p ? p - s : -1;
+	return (p ? p - s : -1);
+}
+
+static int keyword(char *s)
+{
+	// SubC optimization:
+	// Match the keyword against the first
+	//   letter to match keywords faster
+	switch (*s) {
+	case 'p':
+		if (strcmp(s, "print") == 0) {
+			return (T_PRINT);
+		}
+		break;
+	}
+
+	return 0;
+}
+
+static int scan_ident(int c, char *buf, int lim)
+{
+	int i = 0;
+
+	while (isalpha(c) || isdigit(c) || c == '_') {
+		if (i == (lim - 1)) {
+			printf("Identifier too long on line %d\n", Line);
+			exit(1);
+		} else if (i < (lim - 1)) {
+			buf[i++] = c;
+		}
+		c = next();
+	}
+
+	putback(c);
+	buf[i] = '\0';
+
+	return i;
 }
 
 int scan_int(int c)
@@ -80,6 +116,7 @@ int scan_int(int c)
 int scan(struct token *t)
 {
 	int c = skip();
+	int token_type;
 
 	switch (c) {
 	case EOF:
@@ -97,11 +134,25 @@ int scan(struct token *t)
 	case '/':
 		t->token = T_SLASH;
 		break;
+	case ';':
+		t->token = T_SEMI;
+		break;
 	default:
 		if (isdigit(c)) {
 			t->int_val = scan_int(c);
 			t->token = T_INTLIT;
 			break;
+		} else if (isalpha(c) || '_' == c) {
+			scan_ident(c, Text, TEXTLEN);
+
+			// is it a recognized keyword?
+			if ((token_type = keyword(Text))) {
+				t->token = token_type;
+				break;
+			}
+
+			printf("Unrecognized symbol '%s' on line %d\n", Text, Line);
+			exit(1);
 		}
 
 		printf("Unrecognized character '%c' on line %d\n", c, Line);

@@ -15,7 +15,7 @@
 #include <codegen.h>
 #include <gen.h>
 
-static int gen_ast(struct ast_node *node)
+int gen_ast(struct ast_node *node)
 {
 	int left_reg;
 	int right_reg;
@@ -48,8 +48,8 @@ void generate_code(struct ast_node *node)
 {
 	int reg;
 
-	cg_preamble();
+	gen_preamble();
 	reg = gen_ast(node);
-	cg_printint(reg);
-	cg_postamble();
+	gen_printint(reg);
+	gen_postamble();
 }

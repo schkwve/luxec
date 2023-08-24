@@ -15,6 +15,9 @@
 #define extern_ extern
 #endif
 
+#define TEXTLEN 512
+
+extern_ char Text[TEXTLEN + 1];
 extern_ int Line;
 extern_ int Putback;
 extern_ FILE *InFile;
