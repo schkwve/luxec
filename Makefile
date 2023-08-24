@@ -15,6 +15,8 @@ LD := $(CC)
 BUILD_DIR := build
 PROGRAM := $(BUILD_DIR)/luxecc
 
+DEST := /usr/local/bin
+
 INCDIR := include
 
 # We use += here in case the user wants to supply their own flags.
@@ -34,6 +36,10 @@ all: $(PROGRAM)
 format:
 	@clang-format -i $(shell find src -name "*.c" -o -name "*.h")
 
+.PHONY: install
+install: $(PROGRAM)
+	@install $(PROGRAM) $(DEST)
+
 $(PROGRAM): $(OBJ)
 	@mkdir -p $(dir $@)
 	@printf " LD   $@\n"
@@ -47,4 +53,4 @@ $(BUILD_DIR)/%.o: %.c
 .PHONY: clean
 clean:
 	@printf " CLEAN\n"
-	@rm -rf $(BUILD_DIR) out.asm
+	@rm -rf $(BUILD_DIR) out.s
