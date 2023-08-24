@@ -19,6 +19,7 @@
 
 #include <ast.h>
 #include <expr.h>
+#include <gen.h>
 #include <interp.h>
 #include <scanner.h>
 
@@ -34,11 +35,14 @@ int main(int argc, char *argv[])
 
 	InFile = fopen(argv[1], "r");
 
+	OutFile = fopen("out.asm", "w");
+
 	struct ast_node *node;
 
 	scan(&Token);
 	node = binexpr(0);
 	printf("%d\n", interpret_ast(node));
+	generate_code(node);
 
 	return 0;
 }

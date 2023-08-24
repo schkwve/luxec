@@ -8,17 +8,11 @@
  * work. If not, see <http://creativecommons.org/licenses/by-nd/4.0/>.
  */
 
-#ifndef __DATA_H_
-#define __DATA_H_
+#ifndef __GEN_H_
+#define __GEN_H_
 
-#ifndef extern_
-#define extern_ extern
-#endif
+#include <ast.h>
 
-extern_ int Line;
-extern_ int Putback;
-extern_ FILE *InFile;
-extern_ FILE *OutFile;
-extern_ struct token Token;
+void generate_code(struct ast_node *node);
 
-#endif /* __DATA_H_ */
+#endif /* __GEN_H_ */

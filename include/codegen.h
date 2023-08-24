@@ -8,17 +8,18 @@
  * work. If not, see <http://creativecommons.org/licenses/by-nd/4.0/>.
  */
 
-#ifndef __DATA_H_
-#define __DATA_H_
+#ifndef __CODEGEN_H_
+#define __CODEGEN_H_
 
-#ifndef extern_
-#define extern_ extern
-#endif
+void cg_preamble();
+void cg_postamble();
 
-extern_ int Line;
-extern_ int Putback;
-extern_ FILE *InFile;
-extern_ FILE *OutFile;
-extern_ struct token Token;
+int cgload(int val);
+int cgadd(int a, int b);
+int cgsub(int a, int b);
+int cgmul(int a, int b);
+int cgdiv(int a, int b);
 
-#endif /* __DATA_H_ */
+void cg_printint(int a);
+
+#endif /* __CODEGEN_H_ */
