@@ -11,9 +11,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <expr.h>
 #include <data.h>
 #include <def.h>
+
+#include <ast.h>
+#include <expr.h>
 
 int arith_op(int tok)
 {
@@ -30,4 +32,60 @@ int arith_op(int tok)
 		fprintf(stderr, "arithop(): Unknown token on line '%d'\n", Line);
 		exit(1);
 	}
+}
+
+struct ast_node *additive_expr(void)
+{
+	struct ast_node *left;
+	struct ast_node *right;
+	int token_type;
+
+	left = multiplicative_expr();
+
+	token_type = Token.token;
+	if (token_type == T_EOF) {
+		return left;
+	}
+
+	while (1) {
+		scan(&Token);
+
+		right = multiplicative_expr();
+		left = make_ast_node(arith_op(token_type), left, right, 0);
+
+		token_type = Token.token;
+		if (token_type == T_EOF) {
+			break;
+		}
+
+		return left;
+	}
+}
+
+struct ast_node *multiplicative_expr(void)
+{
+	struct ast_node *left;
+	struct ast_node *right;
+	int token_type;
+
+	left = primary();
+
+	token_type = Token.token;
+	if (token_type == T_EOF) {
+		return left;
+	}
+
+	while ((token_type == T_STAR) || (token_type == T_SLASH)) {
+		scan(&Token);
+		right = primary();
+
+		left = make_ast_node(arith_op(token_type), left, right, 0);
+
+		token_type = Token.token;
+		if (token_type == T_EOF) {
+			break;
+		}
+	}
+
+	return left;
 }
