@@ -8,11 +8,9 @@
  * work. If not, see <http://creativecommons.org/licenses/by-nd/4.0/>.
  */
 
-#ifndef __GEN_H_
-#define __GEN_H_
+#ifndef __DECL_H_
+#define __DECL_H_
 
-#include <ast.h>
+void var_declar(void);
 
-int gen_ast(struct ast_node *node, int reg);
-
-#endif /* __GEN_H_ */
+#endif /* __DECL_H_ */

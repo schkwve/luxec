@@ -13,20 +13,29 @@
 
 // AST node types
 enum {
-	A_ADD, A_SUBTRACT, A_MULTIPLY, A_DIVIDE, A_INTLIT
+	A_ADD, A_SUBTRACT, A_MULTIPLY, A_DIVIDE, A_INTLIT, A_IDENT, A_LVIDENT, A_ASSIGN
 };
 
 // token types
 enum {
+	// Operators
 	T_PLUS,
 	T_MINUS,
 	T_STAR,
 	T_SLASH,
+	T_EQUALS,
 
+	// Keywords
 	T_PRINT,
 
-	T_SEMI,
+	// Variable types
+	T_IDENT,
+	T_LVIDENT,
+	T_ASSIGN,
+	T_INT,
 
+	// Misc
+	T_SEMI,
 	T_INTLIT,
 	T_EOF
 };
@@ -36,13 +45,20 @@ struct ast_node {
 	int op;
 	struct ast_node *left;
 	struct ast_node *right;
-	int int_val;
+	union {
+		int int_val;
+		int id;
+	} v;
 };
 
 // token structure
 struct token {
 	int token;
 	int int_val;
+};
+
+struct symtable {
+	char *name;
 };
 
 #endif /* __DEF_H_ */

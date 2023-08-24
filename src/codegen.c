@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <def.h>
 #include <data.h>
 
 #include <codegen.h>
@@ -89,6 +90,13 @@ int cgload(int value)
 	return r;
 }
 
+int cgloadint(int val)
+{
+	int r = alloc_reg();
+	fprintf(OutFile, "\tmovq\t$%d, %s\n", val, reglist[r]);
+	return r;
+}
+
 int cgadd(int a, int b)
 {
 	fprintf(OutFile, "\taddq\t%s, %s\n", reglist[a], reglist[b]);
@@ -120,6 +128,25 @@ int cgdiv(int a, int b)
 	return a;
 }
 
+int cgloadglob(char *ident)
+{
+	int r = alloc_reg();
+
+	fprintf(OutFile, "\tmovq\t%s(\%%rip), %s\n", ident, reglist[r]);
+	return r;
+}
+
+int cgstoreglob(int r, char *ident)
+{
+	fprintf(OutFile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], ident);
+	return r;
+}
+
+void cgglobsym(char *sym)
+{
+	fprintf(OutFile, "\t.comm\t%s,8,8\n", sym);
+}
+
 void cgprintint(int r)
 {
 	fprintf(OutFile, "\tmovq\t%s, %%rdi\n", reglist[r]);
@@ -145,4 +172,9 @@ void gen_freeregs()
 void gen_printint(int reg)
 {
 	cgprintint(reg);
+}
+
+void gen_globsym(char *s)
+{
+	cgglobsym(s);
 }

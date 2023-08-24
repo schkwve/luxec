@@ -16,7 +16,9 @@
 #endif
 
 #define TEXTLEN 512
+#define SYM_COUNT 1024
 
+extern_ struct symtable Gsym[SYM_COUNT]; // global symbol table
 extern_ char Text[TEXTLEN + 1];
 extern_ int Line;
 extern_ int Putback;

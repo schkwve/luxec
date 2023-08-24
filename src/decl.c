@@ -8,11 +8,22 @@
  * work. If not, see <http://creativecommons.org/licenses/by-nd/4.0/>.
  */
 
-#ifndef __GEN_H_
-#define __GEN_H_
+#include <stdio.h>
 
-#include <ast.h>
+#include <def.h>
+#include <data.h>
 
-int gen_ast(struct ast_node *node, int reg);
+#include <statement.h>
+#include <codegen.h>
+#include <misc.h>
+#include <sym.h>
 
-#endif /* __GEN_H_ */
+void var_declar(void)
+{
+	match(T_INT, "int");
+
+	ident();
+	addglob(Text);
+	gen_globsym(Text);
+	semi();
+}

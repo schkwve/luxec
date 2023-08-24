@@ -11,29 +11,41 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <data.h>
 #include <def.h>
+#include <data.h>
 
 #include <ast.h>
 #include <expr.h>
 #include <scanner.h>
+#include <misc.h>
+#include <sym.h>
 
 static int op_prec[] = { 10, 10, 20, 20, 0, 0 };
 // +, -, *, /, INTLIT, EOF
 
 static struct ast_node *primary(void)
 {
-	struct ast_node *node;
+	struct ast_node *node = NULL;
+	int id;
 
 	switch (Token.token) {
 	case T_INTLIT:
 		node = make_ast_leaf(A_INTLIT, Token.int_val);
-		scan(&Token);
-		return node;
+		break;
+	case T_IDENT:
+		id = findglob(Text);
+		if (id == -1) {
+			fatals("Unknown variable", Text);
+		}
+
+		node = make_ast_leaf(A_IDENT, id);
+		break;
 	default:
-		fprintf(stderr, "Syntax error on line '%d'\n", Line);
-		exit(1);
+		fatald("Syntax error, token", Token.token);
 	}
+
+	scan(&Token);
+	return node;
 }
 
 static int op_precedence(int token_type)

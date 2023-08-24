@@ -13,7 +13,7 @@
 
 #include <def.h>
 
+int scan_int(int c);
 int scan(struct token *t);
-void scan_file();
 
 #endif /* __SCANNER_H_ */

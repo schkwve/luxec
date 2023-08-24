@@ -11,8 +11,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <data.h>
 #include <def.h>
+#include <data.h>
 
 #include <ast.h>
 #include <expr.h>
@@ -31,7 +31,7 @@ struct ast_node *make_ast_node(int op, struct ast_node *left,
 	new->op = op;
 	new->left = left;
 	new->right = right;
-	new->int_val = int_val;
+	new->v.int_val = int_val;
 
 	return new;
 }

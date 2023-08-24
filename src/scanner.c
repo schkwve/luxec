@@ -13,8 +13,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <data.h>
 #include <def.h>
+#include <data.h>
 
 #include <scanner.h>
 
@@ -69,9 +69,14 @@ static int keyword(char *s)
 	// Match the keyword against the first
 	//   letter to match keywords faster
 	switch (*s) {
+	case 'i':
+		if (!strcmp(s, "int")) {
+			return T_INT;
+		}
+		break;
 	case 'p':
 		if (strcmp(s, "print") == 0) {
-			return (T_PRINT);
+			return T_PRINT;
 		}
 		break;
 	}
@@ -134,6 +139,9 @@ int scan(struct token *t)
 	case '/':
 		t->token = T_SLASH;
 		break;
+	case '=':
+		t->token = T_EQUALS;
+		break;
 	case ';':
 		t->token = T_SEMI;
 		break;
@@ -151,8 +159,8 @@ int scan(struct token *t)
 				break;
 			}
 
-			printf("Unrecognized symbol '%s' on line %d\n", Text, Line);
-			exit(1);
+			t->token = T_IDENT;
+			break;
 		}
 
 		printf("Unrecognized character '%c' on line %d\n", c, Line);
@@ -160,17 +168,4 @@ int scan(struct token *t)
 	}
 
 	return 1;
-}
-
-void scan_file()
-{
-	struct token T;
-
-	while (scan(&T)) {
-		printf("Found token '%s'", tokstr[T.token]);
-		if (T.token == T_INTLIT) {
-			printf(", value %d", T.int_val);
-		}
-		printf("\n");
-	}
 }

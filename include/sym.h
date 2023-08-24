@@ -8,11 +8,10 @@
  * work. If not, see <http://creativecommons.org/licenses/by-nd/4.0/>.
  */
 
-#ifndef __GEN_H_
-#define __GEN_H_
+#ifndef __SYM_H_
+#define __SYM_H_
 
-#include <ast.h>
+int addglob(char *name);
+int findglob(char *s);
 
-int gen_ast(struct ast_node *node, int reg);
-
-#endif /* __GEN_H_ */
+#endif /* __SYM_H_ */

@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include <def.h>
+#include <data.h>
 
 #include <ast.h>
 #include <interp.h>
@@ -42,7 +43,7 @@ int interpret_ast(struct ast_node *node)
 		return (left_val / right_val);
 		break;
 	case A_INTLIT:
-		return node->int_val;
+		return node->v.int_val;
 		break;
 	default:
 		fprintf(stderr, "Unknown AST oprator %d\n", node->op);

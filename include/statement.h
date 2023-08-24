@@ -13,4 +13,11 @@
 
 void statements(void);
 
+void assign_statement(void);
+void print_statement(void);
+void assign_statement(void);
+
+void semi(void);
+void ident(void);
+
 #endif /* __STATEMENT_H_ */
