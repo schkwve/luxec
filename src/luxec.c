@@ -17,6 +17,8 @@
 #include <data.h>
 #undef extern_
 
+#include <ast.h>
+#include <interp.h>
 #include <scanner.h>
 
 int main(int argc, char *argv[])
@@ -26,9 +28,16 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
+	Line = 1;
+	Putback = '\n';
+
 	InFile = fopen(argv[1], "r");
 
-	scan_file();
+	struct ast_node *node;
+
+	scan(&Token);
+	node = binexpr();
+	printf("%d\n", interpret_ast(node));
 
 	return 0;
 }
