@@ -18,42 +18,6 @@
 #include <expr.h>
 #include <scanner.h>
 
-static struct ast_node *primary(void)
-{
-	struct ast_node *node;
-
-	switch (Token.token) {
-	case T_INTLIT:
-		node = make_ast_leaf(A_INTLIT, Token.int_val);
-		scan(&Token);
-		return node;
-	default:
-		fprintf(stderr, "Syntax error on line '%d'\n", Line);
-		exit(1);
-	}
-}
-
-struct ast_node *binexpr(void)
-{
-	struct ast_node *node, *left, *right;
-	int node_type;
-
-	left = primary();
-
-	if (Token.token == T_EOF) {
-		return left;
-	}
-
-	node_type = arith_op(Token.token);
-
-	scan(&Token);
-
-	right = binexpr();
-
-	node = make_ast_node(node_type, left, right, 0);
-	return node;
-}
-
 struct ast_node *make_ast_node(int op, struct ast_node *left,
 							   struct ast_node *right, int int_val)
 {

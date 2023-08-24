@@ -18,6 +18,7 @@
 #undef extern_
 
 #include <ast.h>
+#include <expr.h>
 #include <interp.h>
 #include <scanner.h>
 
@@ -36,7 +37,7 @@ int main(int argc, char *argv[])
 	struct ast_node *node;
 
 	scan(&Token);
-	node = binexpr();
+	node = binexpr(0);
 	printf("%d\n", interpret_ast(node));
 
 	return 0;

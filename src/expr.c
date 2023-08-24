@@ -16,6 +16,36 @@
 
 #include <ast.h>
 #include <expr.h>
+#include <scanner.h>
+
+static int op_prec[] = { 10, 10, 20, 20, 0, 0 };
+// +, -, *, /, INTLIT, EOF
+
+static struct ast_node *primary(void)
+{
+	struct ast_node *node;
+
+	switch (Token.token) {
+	case T_INTLIT:
+		node = make_ast_leaf(A_INTLIT, Token.int_val);
+		scan(&Token);
+		return node;
+	default:
+		fprintf(stderr, "Syntax error on line '%d'\n", Line);
+		exit(1);
+	}
+}
+
+static int op_precedence(int token_type)
+{
+	int prec = op_prec[token_type];
+	if (prec == 0) {
+		fprintf(stderr, "Syntax error on line %d: %d\n", Line, token_type);
+		exit(1);
+	}
+
+	return prec;
+}
 
 int arith_op(int tok)
 {
@@ -34,35 +64,7 @@ int arith_op(int tok)
 	}
 }
 
-struct ast_node *additive_expr(void)
-{
-	struct ast_node *left;
-	struct ast_node *right;
-	int token_type;
-
-	left = multiplicative_expr();
-
-	token_type = Token.token;
-	if (token_type == T_EOF) {
-		return left;
-	}
-
-	while (1) {
-		scan(&Token);
-
-		right = multiplicative_expr();
-		left = make_ast_node(arith_op(token_type), left, right, 0);
-
-		token_type = Token.token;
-		if (token_type == T_EOF) {
-			break;
-		}
-
-		return left;
-	}
-}
-
-struct ast_node *multiplicative_expr(void)
+struct ast_node *binexpr(int ptp)
 {
 	struct ast_node *left;
 	struct ast_node *right;
@@ -71,19 +73,19 @@ struct ast_node *multiplicative_expr(void)
 	left = primary();
 
 	token_type = Token.token;
-	if (token_type == T_EOF) {
+	if (Token.token == T_EOF) {
 		return left;
 	}
 
-	while ((token_type == T_STAR) || (token_type == T_SLASH)) {
+	while (op_precedence(token_type) > ptp) {
 		scan(&Token);
-		right = primary();
 
+		right = binexpr(op_prec[token_type]);
 		left = make_ast_node(arith_op(token_type), left, right, 0);
 
 		token_type = Token.token;
 		if (token_type == T_EOF) {
-			break;
+			return left;
 		}
 	}
 

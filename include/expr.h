@@ -12,5 +12,6 @@
 #define __EXPR_H_
 
 int arith_op(int tok);
+struct ast_node *binexpr(int ptp);
 
 #endif /* __EXPR_H_ */
