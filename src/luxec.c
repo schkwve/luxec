@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 #include <def.h>
 
@@ -36,8 +38,16 @@ int main(int argc, char *argv[])
 	Putback = '\n';
 
 	InFile = fopen(argv[1], "r");
+	if (InFile == NULL) {
+		fprintf(stderr, "Unable to open '%s': %s\n", argv[1], strerror(errno));
+		exit(1);
+	}
 
 	OutFile = fopen("out.asm", "w");
+	if (OutFile == NULL) {
+		fprintf(stderr, "Unable to open 'out.asm': %s\n", strerror(errno));
+		exit(1);
+	}
 
 	scan(&Token);
 	gen_preamble();
