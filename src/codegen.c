@@ -16,7 +16,7 @@
 #include <codegen.h>
 
 static int freereg[4];
-static char *reglist[4] = { "%r8", "%r9", "%a0", "%a1" };
+static char *reglist[4] = { "%r8", "%r9", "%r10", "%r11" };
 
 // Set all registers as available
 void free_allregs(void)

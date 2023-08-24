@@ -43,9 +43,9 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	OutFile = fopen("out.asm", "w");
+	OutFile = fopen("out.s", "w");
 	if (OutFile == NULL) {
-		fprintf(stderr, "Unable to open 'out.asm': %s\n", strerror(errno));
+		fprintf(stderr, "Unable to open 'out.s': %s\n", strerror(errno));
 		exit(1);
 	}
 
