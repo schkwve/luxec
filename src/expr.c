@@ -20,8 +20,7 @@
 #include <misc.h>
 #include <sym.h>
 
-static int op_prec[] = { 10, 10, 20, 20, 0, 0 };
-// +, -, *, /, INTLIT, EOF
+static int op_prec[] = { 0, 10, 10, 20, 20, 30, 30, 40, 40, 40, 40 };
 
 static struct ast_node *primary(void)
 {
@@ -61,19 +60,12 @@ static int op_precedence(int token_type)
 
 int arith_op(int tok)
 {
-	switch (tok) {
-	case T_PLUS:
-		return A_ADD;
-	case T_MINUS:
-		return A_SUBTRACT;
-	case T_STAR:
-		return A_MULTIPLY;
-	case T_SLASH:
-		return A_DIVIDE;
-	default:
-		fprintf(stderr, "arithop(): Unknown token on line '%d'\n", Line);
-		exit(1);
+	if (tok > T_EOF && tok < T_PRINT) {
+		return tok;
 	}
+
+	fatald("Syntax error, token", tok);
+	return 0;
 }
 
 struct ast_node *binexpr(int ptp)

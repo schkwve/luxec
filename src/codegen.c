@@ -46,6 +46,15 @@ static void free_reg(int reg)
 	freereg[reg] = 1;
 }
 
+static int cgcompare(int a, int b, char *how)
+{
+	fprintf(OutFile, "\tcmpq\t%s, %s\n", reglist[b], reglist[a]);
+	fprintf(OutFile, "\t%s\t%sb\n", how, reglist[b]);
+	fprintf(OutFile, "\tandq\t$255,%s\n", reglist[b]);
+	free_reg(a);
+	return b;
+}
+
 void cgpreamble()
 {
 	free_allregs();
@@ -126,6 +135,36 @@ int cgdiv(int a, int b)
 	fprintf(OutFile, "\tmovq\t%%rax,%s\n", reglist[a]);
 	free_reg(b);
 	return a;
+}
+
+int cgequal(int a, int b)
+{
+	return cgcompare(a, b, "sete");
+}
+
+int cgnotequal(int a, int b)
+{
+	return cgcompare(a, b, "setne");
+}
+
+int cglessthan(int a, int b)
+{
+	return cgcompare(a, b, "setl");
+}
+
+int cggreaterthan(int a, int b)
+{
+	return cgcompare(a, b, "setg");
+}
+
+int cglessequal(int a, int b)
+{
+	return cgcompare(a, b, "setle");
+}
+
+int cggreaterequal(int a, int b)
+{
+	return cgcompare(a, b, "setge");
 }
 
 int cgloadglob(char *ident)

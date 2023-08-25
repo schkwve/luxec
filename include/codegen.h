@@ -17,6 +17,14 @@ int cgadd(int a, int b);
 int cgsub(int a, int b);
 int cgmul(int a, int b);
 int cgdiv(int a, int b);
+
+int cgequal(int a, int b);
+int cgnotequal(int a, int b);
+int cglessthan(int a, int b);
+int cggreaterthan(int a, int b);
+int cglessequal(int a, int b);
+int cggreaterequal(int a, int b);
+
 int cgloadglob(char *ident);
 int cgstoreglob(int r, char *ident);
 

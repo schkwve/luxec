@@ -57,7 +57,7 @@ void assign_statement(void)
 	}
 	right = make_ast_leaf(A_LVIDENT, id);
 
-	match(T_EQUALS, "=");
+	match(T_ASSIGN, "=");
 
 	left = binexpr(0);
 	tree = make_ast_node(A_ASSIGN, left, right, 0);

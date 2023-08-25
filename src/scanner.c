@@ -17,6 +17,7 @@
 #include <data.h>
 
 #include <scanner.h>
+#include <misc.h>
 
 char *tokstr[] = { "+", "-", "*", "/", "intlit" };
 
@@ -139,11 +140,39 @@ int scan(struct token *t)
 	case '/':
 		t->token = T_SLASH;
 		break;
-	case '=':
-		t->token = T_EQUALS;
-		break;
 	case ';':
 		t->token = T_SEMI;
+		break;
+	case '=':
+		if ((c = next()) == '=') {
+			t->token = T_EQ;
+		} else {
+			putback(c);
+			t->token = T_ASSIGN;
+		}
+		break;
+	case '!':
+		if ((c = next()) == '=') {
+			t->token = T_NE;
+		} else {
+			fatalc("Unrecognized character", c);
+		}
+		break;
+	case '<':
+		if ((c = next()) == '=') {
+			t->token = T_LE;
+		} else {
+			putback(c);
+			t->token = T_LT;
+		}
+		break;
+	case '>':
+		if ((c = next()) == '=') {
+			t->token = T_GE;
+		} else {
+			putback(c);
+			t->token = T_GT;
+		}
 		break;
 	default:
 		if (isdigit(c)) {
