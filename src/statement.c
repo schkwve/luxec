@@ -50,13 +50,13 @@ struct ast_node *compound_statement(void)
 		default:
 			fatald("Syntax error: %s", Token.token);
 		}
-	}
 
-	if (tree) {
-		if (left == NULL) {
-			left = tree;
-		} else {
-			left = make_ast_node(A_GLUE, left, NULL, tree, 0);
+		if (tree) {
+			if (left == NULL) {
+				left = tree;
+			} else {
+				left = make_ast_node(A_GLUE, left, NULL, tree, 0);
+			}
 		}
 	}
 }
@@ -87,8 +87,8 @@ struct ast_node *assign_statement(void)
 
 struct ast_node *if_statement(void)
 {
-	struct ast_node *cond_ast = NULL;
-	struct ast_node *true_ast = NULL;
+	struct ast_node *cond_ast;
+	struct ast_node *true_ast;
 	struct ast_node *false_ast = NULL;
 
 	match(T_IF, "if");

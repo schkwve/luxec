@@ -20,7 +20,7 @@ DEST := /usr/local/bin
 INCDIR := include
 
 # We use += here in case the user wants to supply their own flags.
-CFLAGS += -Wall -Wextra -std=c99
+CFLAGS += -Wall -Wextra -Werror -std=c99
 CPPFLAGS += $(INCDIR:%=-I%) -MMD -MP
 LDFLAGS +=
 

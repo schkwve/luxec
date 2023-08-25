@@ -10,5 +10,4 @@
 	} else {
 		print j;
 	}
-	
 }

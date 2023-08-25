@@ -31,10 +31,9 @@ enum {
 	A_IDENT,
 	A_LVIDENT,
 	A_ASSIGN,
-
+	A_PRINT,
 	A_GLUE,
-	A_IF,
-	A_PRINT
+	A_IF
 };
 
 // token types

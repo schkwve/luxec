@@ -129,13 +129,15 @@ int scan_int(int c)
 
 int scan(struct token *t)
 {
-	int c = skip();
+	int c;
 	int token_type;
+
+	c = skip();
 
 	switch (c) {
 	case EOF:
 		t->token = T_EOF;
-		break;
+		return 0;
 	case '+':
 		t->token = T_PLUS;
 		break;
@@ -150,6 +152,18 @@ int scan(struct token *t)
 		break;
 	case ';':
 		t->token = T_SEMI;
+		break;
+	case '{':
+		t->token = T_LBRACE;
+		break;
+	case '}':
+		t->token = T_RBRACE;
+		break;
+	case '(':
+		t->token = T_LPAREN;
+		break;
+	case ')':
+		t->token = T_RPAREN;
 		break;
 	case '=':
 		if ((c = next()) == '=') {
@@ -181,18 +195,6 @@ int scan(struct token *t)
 			putback(c);
 			t->token = T_GT;
 		}
-		break;
-	case '{':
-		t->token = T_LBRACE;
-		break;
-	case '}':
-		t->token = T_RBRACE;
-		break;
-	case '(':
-		t->token = T_LPAREN;
-		break;
-	case ')':
-		t->token = T_RPAREN;
 		break;
 	default:
 		if (isdigit(c)) {
