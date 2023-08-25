@@ -23,4 +23,6 @@ void fatals(char *s1, char *s2);
 void fatald(char *s, int d);
 void fatalc(char *s, int c);
 
+char *__strdup(const char *str);
+
 #endif /* __MISC_H_ */

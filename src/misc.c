@@ -9,6 +9,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
 #include <def.h>
@@ -79,4 +80,19 @@ void fatalc(char *s, int c)
 {
 	fprintf(stderr, "%s:%c on line %d\n", s, c, Line);
 	exit(1);
+}
+
+/*
+ * strdup is not part of c99,
+ * so i hacked together a poor implementation of it
+ */
+char *__strdup(const char *str)
+{
+	size_t len = strlen(str) + 1;
+	char *dst = malloc(len);
+	if (dst != NULL) {
+		memcpy(dst, str, len);
+	}
+
+	return dst;
 }

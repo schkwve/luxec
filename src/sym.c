@@ -37,7 +37,7 @@ int addglob(char *name)
 		return (y);
 
 	y = newglob();
-	Gsym[y].name = strdup(name);
+	Gsym[y].name = __strdup(name);
 	return (y);
 }
 
