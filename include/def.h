@@ -33,7 +33,8 @@ enum {
 	A_ASSIGN,
 	A_PRINT,
 	A_GLUE,
-	A_IF
+	A_IF,
+	A_WHILE
 };
 
 // token types

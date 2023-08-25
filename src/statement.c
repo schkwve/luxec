@@ -113,6 +113,27 @@ struct ast_node *if_statement(void)
 	return make_ast_node(A_IF, cond_ast, true_ast, false_ast, 0);
 }
 
+struct ast_node *while_statement(void)
+{
+	struct ast_node *cond_ast;
+	struct ast_node *body_ast;
+
+	match(T_WHILE, "while");
+
+	lparen();
+
+	cond_ast = binexpr(0);
+	if (cond_ast->op < A_EQ || cond_ast->op > A_GE) {
+		fatal("Bad comparison operator");
+	}
+
+	rparen();
+
+	body_ast = compound_statement();
+
+	return make_ast_node(A_WHILE, cond_ast, NULL, body_ast, 0);
+}
+
 struct ast_node *print_statement(void)
 {
 	struct ast_node *tree;

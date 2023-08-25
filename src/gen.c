@@ -55,6 +55,27 @@ static int gen_if_ast(struct ast_node *node)
 	return NOREG;
 }
 
+static int gen_while_ast(struct ast_node *node)
+{
+	int lstart;
+	int lend;
+
+	lstart = label();
+	lend = label();
+	cglabel(lstart);
+
+	gen_ast(node->left, lend, node->op);
+	gen_freeregs();
+
+	gen_ast(node->right, NOREG, node->op);
+	gen_freeregs();
+
+	cgjump(lstart);
+	cglabel(lend);
+
+	return NOREG;
+}
+
 int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 {
 	int left_reg;
@@ -105,7 +126,7 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 	case A_GT:
 	case A_LE:
 	case A_GE:
-		if (parent_ast_op == A_IF) {
+		if (parent_ast_op == A_IF || parent_ast_op == A_WHILE) {
 			return cgcompare_and_jump(node->op, left_reg, right_reg, reg);
 		} else {
 			return cgcompare_and_set(node->op, left_reg, right_reg);
