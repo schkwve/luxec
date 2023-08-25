@@ -34,7 +34,9 @@ enum {
 	A_PRINT,
 	A_GLUE,
 	A_IF,
-	A_WHILE
+	A_WHILE,
+
+	A_FUNC
 };
 
 // token types
@@ -67,7 +69,10 @@ enum {
 
 	// Keywords
 	T_PRINT,
+
 	T_INT,
+	T_VOID,
+
 	T_IF,
 	T_ELSE,
 	T_WHILE,

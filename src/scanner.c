@@ -93,6 +93,11 @@ static int keyword(char *s)
 			return T_PRINT;
 		}
 		break;
+	case 'v':
+		if (strcmp(s, "void") == 0) {
+			return T_VOID;
+		}
+		break;
 	}
 
 	return 0;

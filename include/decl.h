@@ -12,5 +12,6 @@
 #define __DECL_H_
 
 void var_declar(void);
+struct ast_node *func_declar(void);
 
 #endif /* __DECL_H_ */

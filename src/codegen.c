@@ -58,40 +58,45 @@ static int cgcompare(int a, int b, char *how)
 	return b;
 }
 
-void cgpreamble()
+void cgpreamble(void)
 {
 	free_allregs();
-	fputs("\t.text\n"
-		  ".LC0:\n"
-		  "\t.string\t\"%d\\n\"\n"
-		  "printint:\n"
-		  "\tpushq\t%rbp\n"
-		  "\tmovq\t%rsp, %rbp\n"
-		  "\tsubq\t$16, %rsp\n"
-		  "\tmovl\t%edi, -4(%rbp)\n"
-		  "\tmovl\t-4(%rbp), %eax\n"
-		  "\tmovl\t%eax, %esi\n"
-		  "\tleaq	.LC0(%rip), %rdi\n"
-		  "\tmovl	$0, %eax\n"
-		  "\tcall	printf@PLT\n"
-		  "\tnop\n"
-		  "\tleave\n"
-		  "\tret\n"
-		  "\n"
-		  "\t.globl\tmain\n"
-		  "\t.type\tmain, @function\n"
-		  "main:\n"
-		  "\tpushq\t%rbp\n"
-		  "\tmovq	%rsp, %rbp\n",
-		  OutFile);
+	fprintf(OutFile, "\t.text\n"
+					 ".LC0:\n"
+					 "\t.string\t\"%%d\\n\"\n"
+					 "printint:\n"
+					 "\tpushq\t%%rbp\n"
+					 "\tmovq\t%%rsp, %%rbp\n"
+					 "\tsubq\t$16, %%rsp\n"
+					 "\tmovl\t%%edi, -4(%%rbp)\n"
+					 "\tmovl\t-4(%%rbp), %%eax\n"
+					 "\tmovl\t%%eax, %%esi\n"
+					 "\tleaq	.LC0(%%rip), %%rdi\n"
+					 "\tmovl	$0, %%eax\n"
+					 "\tcall	printf@PLT\n"
+					 "\tnop\n"
+					 "\tleave\n"
+					 "\tret\n"
+					 "\n");
 }
 
-void cgpostamble()
+void cgfuncpreamble(char *name)
 {
-	fputs("\tmovl	$0, %eax\n"
-		  "\tpopq	%rbp\n"
-		  "\tret\n",
-		  OutFile);
+	fprintf(OutFile,
+			"\t.text\n"
+			"\t.globl\t%s\n"
+			"\t.type\t%s, @function\n"
+			"%s:\n"
+			"\tpushq\t%%rbp\n"
+			"\tmovq	%%rsp, %%rbp\n",
+			name, name, name);
+}
+
+void cgfuncpostamble()
+{
+	fprintf(OutFile, "\tmovl	$0, %%eax\n"
+					 "\tpopq	%%rbp\n"
+					 "\tret\n");
 }
 
 int cgload(int value)
@@ -236,11 +241,6 @@ void cgprintint(int r)
 void gen_preamble()
 {
 	cgpreamble();
-}
-
-void gen_postamble()
-{
-	cgpostamble();
 }
 
 void gen_freeregs()

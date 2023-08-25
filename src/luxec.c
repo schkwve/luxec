@@ -22,6 +22,7 @@
 #include <ast.h>
 #include <expr.h>
 #include <codegen.h>
+#include <decl.h>
 #include <gen.h>
 #include <interp.h>
 #include <scanner.h>
@@ -53,9 +54,13 @@ int main(int argc, char *argv[])
 
 	scan(&Token);
 	gen_preamble();
-	tree = compound_statement();
-	gen_ast(tree, NOREG, 0);
-	gen_postamble();
+
+	while (1) {
+		tree = func_declar();
+		gen_ast(tree, NOREG, 0);
+		if (Token.token == T_EOF)
+			break;
+	}
 
 	fclose(InFile);
 	fclose(OutFile);

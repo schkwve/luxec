@@ -11,6 +11,9 @@
 #ifndef __CODEGEN_H_
 #define __CODEGEN_H_
 
+void cgfuncpreamble(char *name);
+void cgfuncpostamble(void);
+
 int cgload(int val);
 int cgloadint(int val);
 
@@ -36,7 +39,6 @@ int cgloadglob(char *ident);
 int cgstoreglob(int r, char *ident);
 
 void gen_preamble();
-void gen_postamble();
 void gen_freeregs();
 void gen_printint(int a);
 void gen_globsym(char *s);

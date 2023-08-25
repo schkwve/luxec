@@ -13,6 +13,7 @@
 #include <def.h>
 #include <data.h>
 
+#include <ast.h>
 #include <statement.h>
 #include <codegen.h>
 #include <misc.h>
@@ -26,4 +27,21 @@ void var_declar(void)
 	addglob(Text);
 	gen_globsym(Text);
 	semi();
+}
+
+struct ast_node *func_declar(void)
+{
+	struct ast_node *tree;
+	int name_slot;
+
+	match(T_VOID, "void");
+
+	ident();
+	name_slot = addglob(Text);
+	lparen();
+	rparen();
+
+	tree = compound_statement();
+
+	return make_ast_unary(A_FUNC, tree, name_slot);
 }
