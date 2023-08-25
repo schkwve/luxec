@@ -13,10 +13,13 @@
 
 #include <ast.h>
 
+struct ast_node *single_statement(void);
 struct ast_node *compound_statement(void);
 
 struct ast_node *assign_statement(void);
 struct ast_node *if_statement(void);
+struct ast_node *while_statement(void);
+struct ast_node *for_statement(void);
 struct ast_node *print_statement(void);
 
 void semi(void);

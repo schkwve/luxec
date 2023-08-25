@@ -84,6 +84,8 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 	switch (node->op) {
 	case A_IF:
 		return gen_if_ast(node);
+	case A_WHILE:
+		return gen_while_ast(node);
 	case A_GLUE:
 		gen_ast(node->left, NOREG, node->op);
 		gen_freeregs();
