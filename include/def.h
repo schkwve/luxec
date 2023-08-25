@@ -54,25 +54,21 @@ enum {
 	T_LE,
 	T_GE,
 
-	// Keywords
-	T_PRINT,
-	T_IF,
-	T_ELSE,
-
-	// Variable types
-	T_IDENT,
-	T_LVIDENT,
-	T_ASSIGN,
-
-	T_INT,
-
 	// Misc
+	T_INTLIT,
 	T_SEMI,
+	T_ASSIGN,
+	T_IDENT,
 	T_LBRACE,
 	T_RBRACE,
 	T_LPAREN,
 	T_RPAREN,
-	T_INTLIT
+
+	// Keywords
+	T_PRINT,
+	T_INT,
+	T_IF,
+	T_ELSE
 };
 
 // AST structure

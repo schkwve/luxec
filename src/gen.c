@@ -72,10 +72,10 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 	}
 
 	if (node->left) {
-		left_reg = gen_ast(node->left, NOREG, -1);
+		left_reg = gen_ast(node->left, NOREG, node->op);
 	}
 	if (node->right) {
-		right_reg = gen_ast(node->right, left_reg, left_reg);
+		right_reg = gen_ast(node->right, left_reg, node->op);
 	}
 
 	switch (node->op) {
@@ -95,6 +95,10 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 		return cgstoreglob(reg, Gsym[node->v.id].name);
 	case A_ASSIGN:
 		return right_reg;
+	case A_PRINT:
+		gen_printint(left_reg);
+		gen_freeregs();
+		return NOREG;
 	case A_EQ:
 	case A_NE:
 	case A_LT:
@@ -104,7 +108,7 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 		if (parent_ast_op == A_IF) {
 			return cgcompare_and_jump(node->op, left_reg, right_reg, reg);
 		} else {
-			cgcompare_and_set(node->op, left_reg, right_reg);
+			return cgcompare_and_set(node->op, left_reg, right_reg);
 		}
 	default:
 		fprintf(stderr, "Unknown AST operator %d\n", node->op);

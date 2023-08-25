@@ -59,7 +59,7 @@ static int op_precedence(int token_type)
 
 int arith_op(int tok)
 {
-	if (tok > T_EOF && tok < T_PRINT) {
+	if (tok > T_EOF && tok < T_INTLIT) {
 		return tok;
 	}
 

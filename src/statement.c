@@ -44,6 +44,7 @@ struct ast_node *compound_statement(void)
 			break;
 		case T_IF:
 			tree = if_statement();
+			break;
 		case T_RBRACE:
 			rbrace();
 			return left;
