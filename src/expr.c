@@ -20,7 +20,7 @@
 #include <misc.h>
 #include <sym.h>
 
-static int op_prec[] = { 0, 10, 10, 20, 20, 30, 30, 40, 40, 40, 40 };
+static int op_prec[] = { 0, 30, 30, 40, 40, 10, 10, 20, 20, 20, 20 };
 
 static struct ast_node *primary(void)
 {
