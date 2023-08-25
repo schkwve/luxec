@@ -70,8 +70,16 @@ static int keyword(char *s)
 	// Match the keyword against the first
 	//   letter to match keywords faster
 	switch (*s) {
+	case 'e':
+		if (strcmp(s, "else") == 0) {
+			return T_ELSE;
+		}
+		break;
 	case 'i':
-		if (!strcmp(s, "int")) {
+		if (strcmp(s, "if") == 0) {
+			return T_IF;
+		}
+		if (strcmp(s, "int") == 0) {
 			return T_INT;
 		}
 		break;
@@ -174,6 +182,18 @@ int scan(struct token *t)
 			t->token = T_GT;
 		}
 		break;
+	case '{':
+		t->token = T_LBRACE;
+		break;
+	case '}':
+		t->token = T_RBRACE;
+		break;
+	case '(':
+		t->token = T_LPAREN;
+		break;
+	case ')':
+		t->token = T_RPAREN;
+		break;
 	default:
 		if (isdigit(c)) {
 			t->int_val = scan_int(c);
@@ -192,8 +212,7 @@ int scan(struct token *t)
 			break;
 		}
 
-		printf("Unrecognized character '%c' on line %d\n", c, Line);
-		exit(1);
+		fatalc("Unrecognized character", c);
 	}
 
 	return 1;

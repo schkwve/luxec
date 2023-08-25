@@ -13,6 +13,10 @@
 
 int cgload(int val);
 int cgloadint(int val);
+
+void cglabel(int l);
+void cgjump(int l);
+
 int cgadd(int a, int b);
 int cgsub(int a, int b);
 int cgmul(int a, int b);
@@ -24,6 +28,9 @@ int cglessthan(int a, int b);
 int cggreaterthan(int a, int b);
 int cglessequal(int a, int b);
 int cggreaterequal(int a, int b);
+
+int cgcompare_and_set(int ast_op, int a, int b);
+int cgcompare_and_jump(int ast_op, int a, int b, int label);
 
 int cgloadglob(char *ident);
 int cgstoreglob(int r, char *ident);

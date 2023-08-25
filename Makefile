@@ -34,7 +34,7 @@ all: $(PROGRAM)
 
 .PHONY: format
 format:
-	@clang-format -i $(shell find src -name "*.c" -o -name "*.h")
+	@clang-format -i $(shell find src include -name "*.c" -o -name "*.h")
 
 .PHONY: install
 install: $(PROGRAM)

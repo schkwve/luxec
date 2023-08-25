@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
+	struct ast_node *tree;
+
 	Line = 1;
 	Putback = '\n';
 
@@ -51,7 +53,8 @@ int main(int argc, char *argv[])
 
 	scan(&Token);
 	gen_preamble();
-	statements();
+	tree = compound_statement();
+	gen_ast(tree, NOREG, 0);
 	gen_postamble();
 
 	fclose(InFile);

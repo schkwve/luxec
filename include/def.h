@@ -11,6 +11,8 @@
 #ifndef __DEF_H_
 #define __DEF_H_
 
+#define NOREG -1
+
 // AST node types
 enum {
 	A_ADD = 1,
@@ -24,17 +26,21 @@ enum {
 	A_GT,
 	A_LE,
 	A_GE,
-	
+
 	A_INTLIT,
 	A_IDENT,
 	A_LVIDENT,
-	A_ASSIGN
+	A_ASSIGN,
+
+	A_GLUE,
+	A_IF,
+	A_PRINT
 };
 
 // token types
 enum {
 	T_EOF,
-	
+
 	// Operators
 	T_PLUS,
 	T_MINUS,
@@ -51,6 +57,8 @@ enum {
 
 	// Keywords
 	T_PRINT,
+	T_IF,
+	T_ELSE,
 
 	// Variable types
 	T_IDENT,
@@ -61,13 +69,19 @@ enum {
 
 	// Misc
 	T_SEMI,
+	T_LBRACE,
+	T_RBRACE,
+	T_LPAREN,
+	T_RPAREN,
 	T_INTLIT
 };
 
 // AST structure
 struct ast_node {
 	int op;
+
 	struct ast_node *left;
+	struct ast_node *mid;
 	struct ast_node *right;
 	union {
 		int int_val;

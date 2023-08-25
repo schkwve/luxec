@@ -13,7 +13,9 @@
 
 #include <def.h>
 
-struct ast_node *make_ast_node(int op, struct ast_node *left, struct ast_node *right, int int_val);
+struct ast_node *make_ast_node(int op, struct ast_node *left,
+							   struct ast_node *mid, struct ast_node *right,
+							   int int_val);
 struct ast_node *make_ast_leaf(int op, int int_val);
 struct ast_node *make_ast_unary(int op, struct ast_node *left, int int_val);
 

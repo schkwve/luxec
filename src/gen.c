@@ -18,16 +18,64 @@
 #include <codegen.h>
 #include <gen.h>
 
-int gen_ast(struct ast_node *node, int reg)
+static int label(void)
+{
+	static int id = 1;
+	return id++;
+}
+
+static int gen_if_ast(struct ast_node *node)
+{
+	int lfalse;
+	int lend;
+
+	lfalse = label();
+	if (node->right) {
+		lend = label();
+	}
+
+	gen_ast(node->left, lfalse, node->op);
+	gen_freeregs();
+
+	gen_ast(node->mid, NOREG, node->op);
+	gen_freeregs();
+
+	if (node->right) {
+		cgjump(lend);
+	}
+
+	cglabel(lfalse);
+
+	if (node->right) {
+		gen_ast(node->right, NOREG, node->op);
+		gen_freeregs();
+		cglabel(lend);
+	}
+
+	return NOREG;
+}
+
+int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 {
 	int left_reg;
 	int right_reg;
 
+	switch (node->op) {
+	case A_IF:
+		return gen_if_ast(node);
+	case A_GLUE:
+		gen_ast(node->left, NOREG, node->op);
+		gen_freeregs();
+		gen_ast(node->right, NOREG, node->op);
+		gen_freeregs();
+		return NOREG;
+	}
+
 	if (node->left) {
-		left_reg = gen_ast(node->left, -1);
+		left_reg = gen_ast(node->left, NOREG, -1);
 	}
 	if (node->right) {
-		right_reg = gen_ast(node->right, left_reg);
+		right_reg = gen_ast(node->right, left_reg, left_reg);
 	}
 
 	switch (node->op) {
@@ -48,17 +96,16 @@ int gen_ast(struct ast_node *node, int reg)
 	case A_ASSIGN:
 		return right_reg;
 	case A_EQ:
-		return cgequal(left_reg, right_reg);
 	case A_NE:
-		return cgnotequal(left_reg, right_reg);
 	case A_LT:
-		return cglessthan(left_reg, right_reg);
 	case A_GT:
-		return cggreaterthan(left_reg, right_reg);
 	case A_LE:
-		return cglessequal(left_reg, right_reg);
 	case A_GE:
-		return cggreaterequal(left_reg, right_reg);
+		if (parent_ast_op == A_IF) {
+			return cgcompare_and_jump(node->op, left_reg, right_reg, reg);
+		} else {
+			cgcompare_and_set(node->op, left_reg, right_reg);
+		}
 	default:
 		fprintf(stderr, "Unknown AST operator %d\n", node->op);
 		exit(1);

@@ -15,9 +15,12 @@
 #include <data.h>
 
 #include <codegen.h>
+#include <misc.h>
 
 static int freereg[4];
 static char *reglist[4] = { "%r8", "%r9", "%r10", "%r11" };
+static char *cmplist[] = { "sete", "setne", "setl", "setg", "setle", "setge" };
+static char *invcmplist[] = { "jne", "je", "jge", "jle", "jg", "jl" };
 
 // Set all registers as available
 void free_allregs(void)
@@ -50,7 +53,7 @@ static int cgcompare(int a, int b, char *how)
 {
 	fprintf(OutFile, "\tcmpq\t%s, %s\n", reglist[b], reglist[a]);
 	fprintf(OutFile, "\t%s\t%sb\n", how, reglist[b]);
-	fprintf(OutFile, "\tandq\t$255,%s\n", reglist[b]);
+	fprintf(OutFile, "\tmovzbq\t%sb,%s\n", reglist[b], reglist[b]);
 	free_reg(a);
 	return b;
 }
@@ -104,6 +107,16 @@ int cgloadint(int val)
 	int r = alloc_reg();
 	fprintf(OutFile, "\tmovq\t$%d, %s\n", val, reglist[r]);
 	return r;
+}
+
+void cglabel(int l)
+{
+	fprintf(OutFile, "L%d:\n", l);
+}
+
+void cgjump(int l)
+{
+	fprintf(OutFile, "\tjmp\tL%d\n", l);
 }
 
 int cgadd(int a, int b)
@@ -165,6 +178,33 @@ int cglessequal(int a, int b)
 int cggreaterequal(int a, int b)
 {
 	return cgcompare(a, b, "setge");
+}
+
+int cgcompare_and_set(int ast_op, int a, int b)
+{
+	if (ast_op < A_EQ || ast_op > A_GE) {
+		fatal("Bad ast_op in cgcompare_and_set()");
+	}
+
+	fprintf(OutFile, "\tcmpq\t%s, %s\n", reglist[b], reglist[a]);
+	fprintf(OutFile, "\t%s\t%sb\n", cmplist[ast_op - A_EQ], reglist[b]);
+	fprintf(OutFile, "\tmovzbq\t%sb, %s\n", reglist[b], reglist[b]);
+	free_reg(a);
+
+	return b;
+}
+
+int cgcompare_and_jump(int ast_op, int a, int b, int label)
+{
+	if (ast_op < A_EQ || ast_op > A_GE) {
+		fatal("Bad ast_op in cgcompare_and_jump()");
+	}
+
+	fprintf(OutFile, "\tcmpq\t%s, %s\n", reglist[b], reglist[a]);
+	fprintf(OutFile, "\t%s\tL%d\n", invcmplist[ast_op - A_EQ], label);
+	free_allregs();
+
+	return NOREG;
 }
 
 int cgloadglob(char *ident)

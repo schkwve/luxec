@@ -11,11 +11,13 @@
 #ifndef __STATEMENT_H_
 #define __STATEMENT_H_
 
-void statements(void);
+#include <ast.h>
 
-void assign_statement(void);
-void print_statement(void);
-void assign_statement(void);
+struct ast_node *compound_statement(void);
+
+struct ast_node *assign_statement(void);
+struct ast_node *if_statement(void);
+struct ast_node *print_statement(void);
 
 void semi(void);
 void ident(void);

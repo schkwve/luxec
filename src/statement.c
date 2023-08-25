@@ -18,32 +18,50 @@
 #include <decl.h>
 #include <codegen.h>
 #include <gen.h>
+#include <scanner.h>
 #include <statement.h>
 #include <sym.h>
 #include <misc.h>
 
-void statements(void)
+struct ast_node *compound_statement(void)
 {
+	struct ast_node *left = NULL;
+	struct ast_node *tree;
+
+	lbrace();
+
 	while (1) {
 		switch (Token.token) {
 		case T_PRINT:
-			print_statement();
+			tree = print_statement();
 			break;
 		case T_INT:
 			var_declar();
+			tree = NULL;
 			break;
 		case T_IDENT:
-			assign_statement();
+			tree = assign_statement();
 			break;
-		case T_EOF:
-			return;
+		case T_IF:
+			tree = if_statement();
+		case T_RBRACE:
+			rbrace();
+			return left;
 		default:
 			fatald("Syntax error: %s", Token.token);
 		}
 	}
+
+	if (tree) {
+		if (left == NULL) {
+			left = tree;
+		} else {
+			left = make_ast_node(A_GLUE, left, NULL, tree, 0);
+		}
+	}
 }
 
-void assign_statement(void)
+struct ast_node *assign_statement(void)
 {
 	struct ast_node *left;
 	struct ast_node *right;
@@ -60,35 +78,50 @@ void assign_statement(void)
 	match(T_ASSIGN, "=");
 
 	left = binexpr(0);
-	tree = make_ast_node(A_ASSIGN, left, right, 0);
-
-	gen_ast(tree, -1);
-	gen_freeregs();
+	tree = make_ast_node(A_ASSIGN, left, NULL, right, 0);
 
 	semi();
+
+	return tree;
 }
 
-void print_statement(void)
+struct ast_node *if_statement(void)
+{
+	struct ast_node *cond_ast = NULL;
+	struct ast_node *true_ast = NULL;
+	struct ast_node *false_ast = NULL;
+
+	match(T_IF, "if");
+	lparen();
+
+	cond_ast = binexpr(0);
+
+	if (cond_ast->op < A_EQ || cond_ast->op > A_GE) {
+		fatal("Bad comparison operator");
+	}
+
+	rparen();
+
+	true_ast = compound_statement();
+
+	if (Token.token == T_ELSE) {
+		scan(&Token);
+		false_ast = compound_statement();
+	}
+
+	return make_ast_node(A_IF, cond_ast, true_ast, false_ast, 0);
+}
+
+struct ast_node *print_statement(void)
 {
 	struct ast_node *tree;
-	int reg;
 
 	match(T_PRINT, "print");
 
 	tree = binexpr(0);
-	reg = gen_ast(tree, -1);
-	gen_printint(reg);
-	gen_freeregs();
+	tree = make_ast_unary(A_PRINT, tree, 0);
 
 	semi();
-}
 
-void semi(void)
-{
-	match(T_SEMI, ";");
-}
-
-void ident(void)
-{
-	match(T_IDENT, "identifier");
+	return tree;
 }

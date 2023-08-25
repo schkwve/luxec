@@ -51,8 +51,7 @@ static int op_precedence(int token_type)
 {
 	int prec = op_prec[token_type];
 	if (prec == 0) {
-		fprintf(stderr, "Syntax error on line %d: %d\n", Line, token_type);
-		exit(1);
+		fatald("Syntax error, token", token_type);
 	}
 
 	return prec;
@@ -77,7 +76,7 @@ struct ast_node *binexpr(int ptp)
 	left = primary();
 
 	token_type = Token.token;
-	if (token_type == T_SEMI) {
+	if (token_type == T_SEMI || token_type == T_RPAREN) {
 		return left;
 	}
 
@@ -85,17 +84,12 @@ struct ast_node *binexpr(int ptp)
 		scan(&Token);
 
 		right = binexpr(op_prec[token_type]);
-		left = make_ast_node(arith_op(token_type), left, right, 0);
+		left = make_ast_node(arith_op(token_type), left, NULL, right, 0);
 
 		token_type = Token.token;
-		if (token_type == T_SEMI) {
+		if (token_type == T_SEMI || token_type == T_RPAREN) {
 			return left;
 		}
-	}
-
-	token_type = Token.token;
-	if (token_type == T_SEMI) {
-		return left;
 	}
 
 	return left;

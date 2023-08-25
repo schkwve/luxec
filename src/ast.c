@@ -19,7 +19,8 @@
 #include <scanner.h>
 
 struct ast_node *make_ast_node(int op, struct ast_node *left,
-							   struct ast_node *right, int int_val)
+							   struct ast_node *mid, struct ast_node *right,
+							   int int_val)
 {
 	struct ast_node *new;
 	new = (struct ast_node *)malloc(sizeof(struct ast_node));
@@ -30,6 +31,7 @@ struct ast_node *make_ast_node(int op, struct ast_node *left,
 
 	new->op = op;
 	new->left = left;
+	new->mid = mid;
 	new->right = right;
 	new->v.int_val = int_val;
 
@@ -38,10 +40,10 @@ struct ast_node *make_ast_node(int op, struct ast_node *left,
 
 struct ast_node *make_ast_leaf(int op, int int_val)
 {
-	return make_ast_node(op, NULL, NULL, int_val);
+	return make_ast_node(op, NULL, NULL, NULL, int_val);
 }
 
 struct ast_node *make_ast_unary(int op, struct ast_node *left, int int_val)
 {
-	return make_ast_node(op, left, NULL, int_val);
+	return make_ast_node(op, left, NULL, NULL, int_val);
 }
