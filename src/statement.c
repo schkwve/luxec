@@ -22,12 +22,14 @@
 #include <statement.h>
 #include <sym.h>
 #include <misc.h>
+#include <lc_types.h>
 
 struct ast_node *single_statement(void)
 {
 	switch (Token.token) {
 	case T_PRINT:
 		return print_statement();
+	case T_CHAR:
 	case T_INT:
 		var_declar();
 		return NULL;
@@ -57,16 +59,14 @@ struct ast_node *compound_statement(void)
 	while (1) {
 		tree = single_statement();
 
-		if (tree != NULL && (tree->op == A_PRINT || tree->op == A_ASSIGN)) {
+		if (tree != NULL && (tree->op == A_PRINT || tree->op == A_ASSIGN))
 			semi();
-		}
 
 		if (tree != NULL) {
-			if (left == NULL) {
+			if (left == NULL)
 				left = tree;
-			} else {
-				left = make_ast_node(A_GLUE, left, NULL, tree, 0);
-			}
+			else
+				left = make_ast_node(A_GLUE, P_NONE, left, NULL, tree, 0);
 		}
 
 		if (Token.token == T_RBRACE) {
@@ -81,6 +81,8 @@ struct ast_node *assign_statement(void)
 	struct ast_node *left;
 	struct ast_node *right;
 	struct ast_node *tree;
+	int left_type;
+	int right_type;
 	int id;
 
 	ident();
@@ -88,12 +90,24 @@ struct ast_node *assign_statement(void)
 	if ((id = findglob(Text)) == -1) {
 		fatals("Undeclared variable", Text);
 	}
-	right = make_ast_leaf(A_LVIDENT, id);
+
+	right = make_ast_leaf(A_LVIDENT, Gsym[id].type, id);
 
 	match(T_ASSIGN, "=");
 
 	left = binexpr(0);
-	tree = make_ast_node(A_ASSIGN, left, NULL, right, 0);
+
+	left_type = left->type;
+	right_type = right->type;
+	if (!type_compat(&left_type, &right_type, 1)) {
+		fatal("Incompatible types");
+	}
+
+	if (left_type) {
+		left = make_ast_unary(left_type, right->type, left, 0);
+	}
+
+	tree = make_ast_node(A_ASSIGN, P_INT, left, NULL, right, 0);
 
 	return tree;
 }
@@ -122,7 +136,7 @@ struct ast_node *if_statement(void)
 		false_ast = compound_statement();
 	}
 
-	return make_ast_node(A_IF, cond_ast, true_ast, false_ast, 0);
+	return make_ast_node(A_IF, P_NONE, cond_ast, true_ast, false_ast, 0);
 }
 
 struct ast_node *while_statement(void)
@@ -143,7 +157,7 @@ struct ast_node *while_statement(void)
 
 	body_ast = compound_statement();
 
-	return make_ast_node(A_WHILE, cond_ast, NULL, body_ast, 0);
+	return make_ast_node(A_WHILE, P_NONE, cond_ast, NULL, body_ast, 0);
 }
 
 struct ast_node *for_statement(void)
@@ -172,20 +186,33 @@ struct ast_node *for_statement(void)
 
 	body_ast = compound_statement();
 
-	tree = make_ast_node(A_GLUE, body_ast, NULL, postop_ast, 0);
-	tree = make_ast_node(A_WHILE, cond_ast, NULL, tree, 0);
+	tree = make_ast_node(A_GLUE, P_NONE, body_ast, NULL, postop_ast, 0);
+	tree = make_ast_node(A_WHILE, P_NONE, cond_ast, NULL, tree, 0);
 
-	return make_ast_node(A_GLUE, preop_ast, NULL, tree, 0);
+	return make_ast_node(A_GLUE, P_NONE, preop_ast, NULL, tree, 0);
 }
 
 struct ast_node *print_statement(void)
 {
 	struct ast_node *tree;
+	int left_type;
+	int right_type;
 
 	match(T_PRINT, "print");
 
 	tree = binexpr(0);
-	tree = make_ast_unary(A_PRINT, tree, 0);
+
+	left_type = P_INT;
+	right_type = tree->type;
+	if (!type_compat(&left_type, &right_type, 0)) {
+		fatal("Incompatible types");
+	}
+
+	if (right_type) {
+		tree = make_ast_unary(right_type, P_INT, tree, 0);
+	}
+
+	tree = make_ast_unary(A_PRINT, P_NONE, tree, 0);
 
 	return tree;
 }

@@ -18,7 +18,7 @@
 #include <expr.h>
 #include <scanner.h>
 
-struct ast_node *make_ast_node(int op, struct ast_node *left,
+struct ast_node *make_ast_node(int op, int type, struct ast_node *left,
 							   struct ast_node *mid, struct ast_node *right,
 							   int int_val)
 {
@@ -30,6 +30,7 @@ struct ast_node *make_ast_node(int op, struct ast_node *left,
 	}
 
 	new->op = op;
+	new->type = type;
 	new->left = left;
 	new->mid = mid;
 	new->right = right;
@@ -38,12 +39,13 @@ struct ast_node *make_ast_node(int op, struct ast_node *left,
 	return new;
 }
 
-struct ast_node *make_ast_leaf(int op, int int_val)
+struct ast_node *make_ast_leaf(int op, int type, int int_val)
 {
-	return make_ast_node(op, NULL, NULL, NULL, int_val);
+	return make_ast_node(op, type, NULL, NULL, NULL, int_val);
 }
 
-struct ast_node *make_ast_unary(int op, struct ast_node *left, int int_val)
+struct ast_node *make_ast_unary(int op, int type, struct ast_node *left,
+								int int_val)
 {
-	return make_ast_node(op, left, NULL, NULL, int_val);
+	return make_ast_node(op, type, left, NULL, NULL, int_val);
 }

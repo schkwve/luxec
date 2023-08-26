@@ -22,23 +22,25 @@ static int Globs = 0;
 
 static int newglob(void)
 {
-	int p;
+	int p = Globs++;
 
-	if ((p = Globs++) >= SYM_COUNT)
+	if (p >= SYM_COUNT)
 		fatal("Too many global symbols");
-	return (p);
+	return p;
 }
 
-int addglob(char *name)
+int addglob(char *name, int type, int stype)
 {
-	int y;
+	int y = findglob(name);
 
-	if ((y = findglob(name)) != -1)
-		return (y);
+	if (y != -1)
+		return y;
 
 	y = newglob();
 	Gsym[y].name = __strdup(name);
-	return (y);
+	Gsym[y].type = type;
+	Gsym[y].stype = stype;
+	return y;
 }
 
 int findglob(char *s)
@@ -47,7 +49,7 @@ int findglob(char *s)
 
 	for (i = 0; i < Globs; i++) {
 		if (*s == *Gsym[i].name && !strcmp(s, Gsym[i].name))
-			return (i);
+			return i;
 	}
-	return (-1);
+	return -1;
 }

@@ -212,23 +212,36 @@ int cgcompare_and_jump(int ast_op, int a, int b, int label)
 	return NOREG;
 }
 
-int cgloadglob(char *ident)
+int cgloadglob(int id)
 {
 	int r = alloc_reg();
 
-	fprintf(OutFile, "\tmovq\t%s(\%%rip), %s\n", ident, reglist[r]);
+	if (Gsym[id].type == P_INT) {
+		fprintf(OutFile, "\tmovq\t%s(\%%rip), %s\n", Gsym[id].name, reglist[r]);
+	} else {
+		fprintf(OutFile, "\tmovzbq\t%s(\%%rip), %s\n", Gsym[id].name,
+				reglist[r]);
+	}
 	return r;
 }
 
-int cgstoreglob(int r, char *ident)
+int cgstoreglob(int r, int id)
 {
-	fprintf(OutFile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], ident);
+	if (Gsym[id].type == P_INT) {
+		fprintf(OutFile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], Gsym[id].name);
+	} else {
+		fprintf(OutFile, "\tmovb\t%s, %s(\%%rip)\n", reglist[r], Gsym[id].name);
+	}
 	return r;
 }
 
-void cgglobsym(char *sym)
+void cgglobsym(int id)
 {
-	fprintf(OutFile, "\t.comm\t%s,8,8\n", sym);
+	if (Gsym[id].type == P_INT) {
+		fprintf(OutFile, "\t.comm\t%s,8,8\n", Gsym[id].name);
+	} else {
+		fprintf(OutFile, "\t.comm\t%s,1,1\n", Gsym[id].name);
+	}
 }
 
 void cgprintint(int r)
@@ -236,6 +249,13 @@ void cgprintint(int r)
 	fprintf(OutFile, "\tmovq\t%s, %%rdi\n", reglist[r]);
 	fprintf(OutFile, "\tcall\tprintint\n");
 	free_reg(r);
+}
+
+int cgwiden(int r, int old_type, int new_type)
+{
+	(void)old_type;
+	(void)new_type;
+	return r;
 }
 
 void gen_preamble()
@@ -253,7 +273,7 @@ void gen_printint(int reg)
 	cgprintint(reg);
 }
 
-void gen_globsym(char *s)
+void gen_globsym(int id)
 {
-	cgglobsym(s);
+	cgglobsym(id);
 }

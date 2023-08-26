@@ -8,10 +8,9 @@
  * work. If not, see <http://creativecommons.org/licenses/by-nd/4.0/>.
  */
 
-#ifndef __SYM_H_
-#define __SYM_H_
+#ifndef __LC_TYPES_H_
+#define __LC_TYPES_H_
 
-int addglob(char *name, int type, int stype);
-int findglob(char *s);
+int type_compat(int *left, int *right, int only_right);
 
-#endif /* __SYM_H_ */
+#endif /* __LC_TYPES_H_ */

@@ -14,18 +14,39 @@
 #include <data.h>
 
 #include <ast.h>
+#include <decl.h>
 #include <statement.h>
 #include <codegen.h>
 #include <misc.h>
+#include <scanner.h>
 #include <sym.h>
+
+int parse_type(int t)
+{
+	if (t == T_CHAR) {
+		return P_CHAR;
+	}
+	if (t == T_INT) {
+		return P_INT;
+	}
+	if (t == T_VOID) {
+		return P_VOID;
+	}
+
+	fatald("Illegal type, token", t);
+	return 0;
+}
 
 void var_declar(void)
 {
-	match(T_INT, "int");
+	int id;
+	int type;
 
+	type = parse_type(Token.token);
+	scan(&Token);
 	ident();
-	addglob(Text);
-	gen_globsym(Text);
+	id = addglob(Text, type, S_VAR);
+	gen_globsym(id);
 	semi();
 }
 
@@ -37,11 +58,11 @@ struct ast_node *func_declar(void)
 	match(T_VOID, "void");
 
 	ident();
-	name_slot = addglob(Text);
+	name_slot = addglob(Text, P_VOID, S_FUNC);
 	lparen();
 	rparen();
 
 	tree = compound_statement();
 
-	return make_ast_unary(A_FUNC, tree, name_slot);
+	return make_ast_unary(A_FUNC, P_VOID, tree, name_slot);
 }

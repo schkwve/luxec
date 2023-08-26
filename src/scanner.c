@@ -19,8 +19,6 @@
 #include <scanner.h>
 #include <misc.h>
 
-char *tokstr[] = { "+", "-", "*", "/", "intlit" };
-
 static void putback(int c)
 {
 	Putback = c;
@@ -37,7 +35,7 @@ static int next(void)
 	}
 
 	c = fgetc(InFile);
-	if ('\n' == c) {
+	if (c == '\n') {
 		Line++;
 	}
 
@@ -70,6 +68,11 @@ static int keyword(char *s)
 	// Match the keyword against the first
 	//   letter to match keywords faster
 	switch (*s) {
+	case 'c':
+		if (strcmp(s, "char") == 0) {
+			return T_CHAR;
+		}
+		break;
 	case 'e':
 		if (strcmp(s, "else") == 0) {
 			return T_ELSE;
@@ -96,6 +99,11 @@ static int keyword(char *s)
 	case 'v':
 		if (strcmp(s, "void") == 0) {
 			return T_VOID;
+		}
+		break;
+	case 'w':
+		if (strcmp(s, "while") == 0) {
+			return T_WHILE;
 		}
 		break;
 	}
@@ -147,7 +155,7 @@ int scan(struct token *t)
 	switch (c) {
 	case EOF:
 		t->token = T_EOF;
-		return 0;
+		return (0);
 	case '+':
 		t->token = T_PLUS;
 		break;
@@ -187,7 +195,7 @@ int scan(struct token *t)
 		if ((c = next()) == '=') {
 			t->token = T_NE;
 		} else {
-			fatalc("Unrecognized character", c);
+			fatalc("Unrecognised character", c);
 		}
 		break;
 	case '<':
@@ -214,17 +222,15 @@ int scan(struct token *t)
 		} else if (isalpha(c) || '_' == c) {
 			scan_ident(c, Text, TEXTLEN);
 
-			// is it a recognized keyword?
-			if ((token_type = keyword(Text))) {
+			token_type = keyword(Text);
+			if (token_type) {
 				t->token = token_type;
 				break;
 			}
-
 			t->token = T_IDENT;
 			break;
 		}
-
-		fatalc("Unrecognized character", c);
+		fatalc("Unrecognised character", c);
 	}
 
 	return 1;

@@ -35,12 +35,14 @@ int cggreaterequal(int a, int b);
 int cgcompare_and_set(int ast_op, int a, int b);
 int cgcompare_and_jump(int ast_op, int a, int b, int label);
 
-int cgloadglob(char *ident);
-int cgstoreglob(int r, char *ident);
+int cgloadglob(int id);
+int cgstoreglob(int r, int id);
+
+int cgwiden(int r, int old_type, int new_type);
 
 void gen_preamble();
 void gen_freeregs();
 void gen_printint(int a);
-void gen_globsym(char *s);
+void gen_globsym(int id);
 
 #endif /* __CODEGEN_H_ */

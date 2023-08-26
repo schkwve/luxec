@@ -118,9 +118,11 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 	case A_INTLIT:
 		return cgloadint(node->v.int_val);
 	case A_IDENT:
-		return cgloadglob(Gsym[node->v.id].name);
+		return cgloadglob(node->v.id);
 	case A_LVIDENT:
-		return cgstoreglob(reg, Gsym[node->v.id].name);
+		return cgstoreglob(reg, node->v.id);
+	case A_WIDEN:
+		return cgwiden(left_reg, node->left->type, node->type);
 	case A_ASSIGN:
 		return right_reg;
 	case A_PRINT:

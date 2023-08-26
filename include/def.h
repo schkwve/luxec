@@ -36,7 +36,9 @@ enum {
 	A_IF,
 	A_WHILE,
 
-	A_FUNC
+	A_FUNC,
+
+	A_WIDEN
 };
 
 // token types
@@ -71,6 +73,7 @@ enum {
 	T_PRINT,
 
 	T_INT,
+	T_CHAR,
 	T_VOID,
 
 	T_IF,
@@ -79,9 +82,16 @@ enum {
 	T_FOR
 };
 
+// Primitive types
+enum { P_NONE, P_VOID, P_CHAR, P_INT };
+
+// Structural types
+enum { S_VAR, S_FUNC };
+
 // AST structure
 struct ast_node {
 	int op;
+	int type;
 
 	struct ast_node *left;
 	struct ast_node *mid;
@@ -100,6 +110,8 @@ struct token {
 
 struct symtable {
 	char *name;
+	int type;
+	int stype;
 };
 
 #endif /* __DEF_H_ */
