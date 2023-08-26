@@ -1,0 +1,3 @@
+char = 1 byte (8 bit)
+int = 4 bytes (32 bit)
+long = 8 bytes (64 bit)

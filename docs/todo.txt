@@ -1,0 +1,7 @@
+- functions:
+  - calling functions
+  - returns
+  - using function returns as statements
+
+- meta:
+ - write docs with LyX
