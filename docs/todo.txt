@@ -5,3 +5,9 @@
 
 - meta:
  - write docs with LyX
+ - port to arm64?
+
+- language:
+ - more types
+ - arrays 
+ - pointers
