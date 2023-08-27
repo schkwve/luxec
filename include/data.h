@@ -22,6 +22,7 @@ extern_ struct symtable Gsym[SYM_COUNT]; // global symbol table
 extern_ char Text[TEXTLEN + 1];
 extern_ int Line;
 extern_ int Putback;
+extern_ int Globs;
 extern_ FILE *InFile;
 extern_ FILE *OutFile;
 extern_ struct token Token;

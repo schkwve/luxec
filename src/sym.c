@@ -18,8 +18,6 @@
 #include <misc.h>
 #include <sym.h>
 
-static int Globs = 0;
-
 static int newglob(void)
 {
 	int p = Globs++;

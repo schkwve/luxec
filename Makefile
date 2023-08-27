@@ -9,11 +9,14 @@
 #
 #
 
+# Valid options: x86_64 arm64
+ARCH := x86_64
+
 CC := gcc
 LD := $(CC)
 
 BUILD_DIR := build
-PROGRAM := $(BUILD_DIR)/luxecc
+PROGRAM := $(BUILD_DIR)/$(ARCH)-luxecc
 
 DEST := /usr/local/bin
 
@@ -24,7 +27,8 @@ CFLAGS += -Wall -Wextra -Werror -std=c99
 CPPFLAGS += $(INCDIR:%=-I%) -MMD -MP
 LDFLAGS +=
 
-C_FILES := $(shell find src -name *.c -type f)
+ARCH_C_FILES := $(shell find src/$(ARCH) -name "*.c" -type f)
+C_FILES := $(ARCH_C_FILES) $(shell find src -name "*.c" -not -path "src/arm64/*" -not -path "src/x86_64/*" -type f)
 
 OBJ := $(C_FILES:%.c=$(BUILD_DIR)/%.o)
 

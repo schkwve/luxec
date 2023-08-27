@@ -52,35 +52,14 @@ static void free_reg(int reg)
 	freereg[reg] = 1;
 }
 
-static int cgcompare(int a, int b, char *how)
-{
-	fprintf(OutFile, "\tcmpq\t%s, %s\n", reglist[b], reglist[a]);
-	fprintf(OutFile, "\t%s\t%sb\n", how, reglist[b]);
-	fprintf(OutFile, "\tmovzbq\t%sb,%s\n", reglist[b], reglist[b]);
-	free_reg(a);
-	return b;
-}
-
 void cgpreamble(void)
 {
 	free_allregs();
-	fprintf(OutFile, "\t.text\n"
-					 ".LC0:\n"
-					 "\t.string\t\"%%d\\n\"\n"
-					 "printint:\n"
-					 "\tpushq\t%%rbp\n"
-					 "\tmovq\t%%rsp, %%rbp\n"
-					 "\tsubq\t$16, %%rsp\n"
-					 "\tmovl\t%%edi, -4(%%rbp)\n"
-					 "\tmovl\t-4(%%rbp), %%eax\n"
-					 "\tmovl\t%%eax, %%esi\n"
-					 "\tleaq	.LC0(%%rip), %%rdi\n"
-					 "\tmovl	$0, %%eax\n"
-					 "\tcall	printf@PLT\n"
-					 "\tnop\n"
-					 "\tleave\n"
-					 "\tret\n"
-					 "\n");
+	fprintf(OutFile, "\t.text\n");
+}
+
+void cgpostamble(void)
+{
 }
 
 void cgfuncpreamble(int id)
@@ -101,14 +80,6 @@ void cgfuncpostamble(int id)
 	cglabel(Gsym[id].end_label);
 	fprintf(OutFile, "\tpopq %%rbp\n"
 					 "\tret\n");
-}
-
-int cgload(int value)
-{
-	int r = alloc_reg();
-
-	fprintf(OutFile, "\tmovq\t$%d, %s\n", value, reglist[r]);
-	return r;
 }
 
 int cgloadint(int val, int type)
@@ -158,36 +129,6 @@ int cgdiv(int a, int b)
 	fprintf(OutFile, "\tmovq\t%%rax,%s\n", reglist[a]);
 	free_reg(b);
 	return a;
-}
-
-int cgequal(int a, int b)
-{
-	return cgcompare(a, b, "sete");
-}
-
-int cgnotequal(int a, int b)
-{
-	return cgcompare(a, b, "setne");
-}
-
-int cglessthan(int a, int b)
-{
-	return cgcompare(a, b, "setl");
-}
-
-int cggreaterthan(int a, int b)
-{
-	return cgcompare(a, b, "setg");
-}
-
-int cglessequal(int a, int b)
-{
-	return cgcompare(a, b, "setle");
-}
-
-int cggreaterequal(int a, int b)
-{
-	return cgcompare(a, b, "setge");
 }
 
 int cgcompare_and_set(int ast_op, int a, int b)

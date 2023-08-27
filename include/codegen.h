@@ -11,6 +11,11 @@
 #ifndef __CODEGEN_H_
 #define __CODEGEN_H_
 
+#define MAX_INTS 1024
+
+void cgpreamble(void);
+void cgpostamble(void);
+
 void cgfuncpreamble(int id);
 void cgfuncpostamble(int id);
 
