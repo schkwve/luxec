@@ -189,6 +189,15 @@ int scan(struct token *t)
 	case ';':
 		t->token = T_SEMI;
 		break;
+	case '&':
+		c = next();
+		if (c == '&') {
+			t->token = T_LOGAND;
+		} else {
+			putback(c);
+			t->token = T_AMPER;
+		}
+		break;
 	case '{':
 		t->token = T_LBRACE;
 		break;
@@ -202,7 +211,8 @@ int scan(struct token *t)
 		t->token = T_RPAREN;
 		break;
 	case '=':
-		if ((c = next()) == '=') {
+		c = next();
+		if (c == '=') {
 			t->token = T_EQ;
 		} else {
 			putback(c);
@@ -210,14 +220,16 @@ int scan(struct token *t)
 		}
 		break;
 	case '!':
-		if ((c = next()) == '=') {
+		c = next();
+		if (c == '=') {
 			t->token = T_NE;
 		} else {
 			fatalc("Unrecognised character", c);
 		}
 		break;
 	case '<':
-		if ((c = next()) == '=') {
+		c = next();
+		if (c == '=') {
 			t->token = T_LE;
 		} else {
 			putback(c);
@@ -225,7 +237,8 @@ int scan(struct token *t)
 		}
 		break;
 	case '>':
-		if ((c = next()) == '=') {
+		c = next();
+		if (c == '=') {
 			t->token = T_GE;
 		} else {
 			putback(c);

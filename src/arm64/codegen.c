@@ -135,6 +135,21 @@ void cgfuncpostamble(int id)
 					 "\t.align\t2\n");
 }
 
+int cgaddress(int id)
+{
+	// placeholder
+	(void)id;
+	return NOREG;
+}
+
+int cgderef(int r, int type)
+{
+	// placeholder
+	(void)r;
+	(void)type;
+	return NOREG;
+}
+
 int cgloadint(int val, int type)
 {
 	(void)type;
@@ -253,6 +268,9 @@ int cgstoreglob(int r, int id)
 		break;
 	case P_INT:
 	case P_LONG:
+	case P_CHARPTR:
+	case P_INTPTR:
+	case P_LONGPTR:
 		fprintf(OutFile, "\tstr\t%s, [r3]\n", reglist[r]);
 		break;
 	default:
@@ -281,7 +299,7 @@ void cgprintint(int r)
 
 int cgprimsize(int type)
 {
-	if (type < P_NONE || type > P_LONG) {
+	if (type < P_NONE || type > P_LONGPTR) {
 		fatal("Bad type in cgprimsize()");
 	}
 

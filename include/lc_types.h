@@ -13,4 +13,7 @@
 
 int type_compat(int *left, int *right, int only_right);
 
+int val_at(int type);
+int pointer_to(int type);
+
 #endif /* __LC_TYPES_H_ */

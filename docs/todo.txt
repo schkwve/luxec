@@ -3,9 +3,11 @@
   - returns
   - using function returns as statements
 
+// sorted by importance (high to low)
 - meta:
+ - write a test suite
+ - pointer support for arm64
  - write docs with LyX
- - port to arm64?
 
 - language:
  - more types

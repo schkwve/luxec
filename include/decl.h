@@ -12,7 +12,7 @@
 #define __DECL_H_
 
 void var_declar(void);
-int parse_type(int t);
+int parse_type(void);
 struct ast_node *func_declar(void);
 
 #endif /* __DECL_H_ */

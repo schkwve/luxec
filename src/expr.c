@@ -68,6 +68,38 @@ static int op_precedence(int token_type)
 	return prec;
 }
 
+struct ast_node *prefix(void)
+{
+	struct ast_node *tree;
+
+	switch (Token.token) {
+	case T_AMPER:
+		scan(&Token);
+		tree = prefix();
+
+		if (tree->op != A_IDENT) {
+			fatal("& operator must be followed by an identifier");
+		}
+
+		tree->op = A_ADDR;
+		tree->type = pointer_to(tree->type);
+		break;
+	case T_STAR:
+		scan(&Token);
+		tree = prefix();
+
+		if (tree->op != A_IDENT && tree->op != A_DEREF) {
+			fatal("* operator must be followed by an identifier or *");
+		}
+
+		tree = make_ast_unary(A_DEREF, val_at(tree->type), tree, 0);
+		break;
+	default:
+		tree = primary();
+	}
+	return tree;
+}
+
 int arith_op(int tok)
 {
 	if (tok > T_EOF && tok < T_INTLIT) {
@@ -103,7 +135,7 @@ struct ast_node *binexpr(int ptp)
 	int right_type;
 	int token_type;
 
-	left = primary();
+	left = prefix();
 
 	token_type = Token.token;
 	if (token_type == T_SEMI || token_type == T_RPAREN) {

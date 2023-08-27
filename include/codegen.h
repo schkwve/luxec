@@ -19,6 +19,9 @@ void cgpostamble(void);
 void cgfuncpreamble(int id);
 void cgfuncpostamble(int id);
 
+int cgaddress(int id);
+int cgderef(int r, int type);
+
 int cgload(int val);
 int cgloadint(int val, int type);
 

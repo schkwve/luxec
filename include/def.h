@@ -36,6 +36,9 @@ enum {
 	A_IF,
 	A_WHILE,
 
+	A_ADDR,
+	A_DEREF,
+
 	A_FUNC,
 	A_FUNCCALL,
 	A_RETURN,
@@ -52,6 +55,8 @@ enum {
 	T_MINUS,
 	T_STAR,
 	T_SLASH,
+	T_AMPER,
+	T_LOGAND,
 
 	// Equality
 	T_EQ,
@@ -88,7 +93,17 @@ enum {
 };
 
 // Primitive types
-enum { P_NONE, P_VOID, P_CHAR, P_INT, P_LONG };
+enum {
+	P_NONE,
+	P_VOID,
+	P_CHAR,
+	P_INT,
+	P_LONG,
+	P_VOIDPTR,
+	P_CHARPTR,
+	P_INTPTR,
+	P_LONGPTR
+};
 
 // Structural types
 enum { S_VAR, S_FUNC };

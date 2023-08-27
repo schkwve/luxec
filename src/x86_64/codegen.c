@@ -82,6 +82,28 @@ void cgfuncpostamble(int id)
 					 "\tret\n");
 }
 
+int cgaddress(int id)
+{
+	int r = alloc_reg();
+	fprintf(OutFile, "\tleaq\t%s(%%rip), %s\n", Gsym[id].name, reglist[r]);
+	return r;
+}
+
+int cgderef(int r, int type)
+{
+	switch (type) {
+	case P_CHARPTR:
+		fprintf(OutFile, "\tmovzbq\t(%s), %s\n", reglist[r], reglist[r]);
+		break;
+	case P_INTPTR:
+	case P_LONGPTR:
+		fprintf(OutFile, "\tmovq\t(%s), %s\n", reglist[r], reglist[r]);
+		break;
+	}
+
+	return r;
+}
+
 int cgloadint(int val, int type)
 {
 	(void)type;
@@ -203,6 +225,9 @@ int cgloadglob(int id)
 				reglist[r]);
 		break;
 	case P_LONG:
+	case P_CHARPTR:
+	case P_INTPTR:
+	case P_LONGPTR:
 		fprintf(OutFile, "\tmovq\t%s(\%%rip), %s\n", Gsym[id].name, reglist[r]);
 		break;
 	default:
@@ -223,6 +248,9 @@ int cgstoreglob(int r, int id)
 				Gsym[id].name);
 		break;
 	case P_LONG:
+	case P_CHARPTR:
+	case P_INTPTR:
+	case P_LONGPTR:
 		fprintf(OutFile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], Gsym[id].name);
 		break;
 	default:
@@ -248,7 +276,7 @@ void cgprintint(int r)
 
 int cgprimsize(int type)
 {
-	if (type < P_NONE || type > P_LONG) {
+	if (type < P_NONE || type > P_LONGPTR) {
 		fatal("Bad type in cgprimsize()");
 	}
 

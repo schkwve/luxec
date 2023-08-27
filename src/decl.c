@@ -17,28 +17,41 @@
 #include <decl.h>
 #include <statement.h>
 #include <gen.h>
+#include <lc_types.h>
 #include <codegen.h>
 #include <misc.h>
 #include <scanner.h>
 #include <sym.h>
 
-int parse_type(int t)
+int parse_type(void)
 {
-	if (t == T_CHAR) {
-		return P_CHAR;
-	}
-	if (t == T_INT) {
-		return P_INT;
-	}
-	if (t == T_LONG) {
-		return P_LONG;
-	}
-	if (t == T_VOID) {
-		return P_VOID;
+	int type;
+	switch (Token.token) {
+	case T_VOID:
+		type = P_VOID;
+		break;
+	case T_CHAR:
+		type = P_CHAR;
+		break;
+	case T_INT:
+		type = P_INT;
+		break;
+	case T_LONG:
+		type = P_LONG;
+		break;
+	default:
+		fatald("Illegal type, token", Token.token);
 	}
 
-	fatald("Illegal type, token", t);
-	return 0;
+	while (1) {
+		scan(&Token);
+		if (Token.token != T_STAR) {
+			break;
+		}
+		type = pointer_to(type);
+	}
+
+	return type;
 }
 
 void var_declar(void)
@@ -46,9 +59,9 @@ void var_declar(void)
 	int id;
 	int type;
 
-	type = parse_type(Token.token);
-	scan(&Token);
+	type = parse_type();
 	ident();
+
 	id = addglob(Text, type, S_VAR, 0);
 	gen_globsym(id);
 	semi();
@@ -62,8 +75,7 @@ struct ast_node *func_declar(void)
 	int type;
 	int end_label;
 
-	type = parse_type(Token.token);
-	scan(&Token);
+	type = parse_type();
 	ident();
 
 	end_label = label();

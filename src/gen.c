@@ -143,6 +143,10 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 		return NOREG;
 	case A_FUNCCALL:
 		return cgcall(left_reg, node->v.id);
+	case A_ADDR:
+		return cgaddress(node->v.id);
+	case A_DEREF:
+		return cgderef(left_reg, node->left->type);
 	default:
 		fatald("Unknown AST operator", node->op);
 	}

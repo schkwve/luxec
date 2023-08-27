@@ -35,7 +35,7 @@ void semi(void)
 
 void ident(void)
 {
-	match(T_IDENT, "identifier");
+	match(T_IDENT, "Identifier");
 }
 
 void lbrace(void)

@@ -16,6 +16,7 @@
 
 #include <codegen.h>
 #include <lc_types.h>
+#include <misc.h>
 
 int type_compat(int *left, int *right, int only_right)
 {
@@ -53,4 +54,51 @@ int type_compat(int *left, int *right, int only_right)
 	*left = 0;
 	*right = 0;
 	return 1;
+}
+
+int val_at(int type)
+{
+	int new_type = -1;
+	switch (type) {
+	case P_VOIDPTR:
+		new_type = P_VOID;
+		break;
+	case P_CHARPTR:
+		new_type = P_CHAR;
+		break;
+	case P_INTPTR:
+		new_type = P_INT;
+		break;
+	case P_LONGPTR:
+		new_type = P_LONG;
+		break;
+	default:
+		fatald("Unrecognized in val_at: type", type);
+		break;
+	}
+
+	return new_type;
+}
+
+int pointer_to(int type)
+{
+	int new_type = -1;
+	switch (type) {
+	case P_VOID:
+		new_type = P_VOIDPTR;
+		break;
+	case P_CHAR:
+		new_type = P_CHARPTR;
+		break;
+	case P_INT:
+		new_type = P_INTPTR;
+		break;
+	case P_LONG:
+		new_type = P_LONGPTR;
+		break;
+	default:
+		fatald("Unrecognized in pointer_to: type", type);
+	}
+
+	return new_type;
 }
