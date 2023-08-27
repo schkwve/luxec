@@ -37,6 +37,12 @@ static struct ast_node *primary(void)
 		}
 		break;
 	case T_IDENT:
+		scan(&Token);
+		if (Token.token == T_LPAREN) {
+			return func_call();
+		}
+		reject_token(&Token);
+
 		id = findglob(Text);
 		if (id == -1) {
 			fatals("Unknown variable", Text);
@@ -70,6 +76,23 @@ int arith_op(int tok)
 
 	fatald("Syntax error, token", tok);
 	return 0;
+}
+
+struct ast_node *func_call(void)
+{
+	struct ast_node *tree;
+	int id = findglob(Text);
+
+	if (id == -1) {
+		fatals("Undeclared function", Text);
+	}
+
+	lparen();
+	tree = binexpr(0);
+	tree = make_ast_unary(A_FUNCCALL, Gsym[id].type, tree, id);
+	rparen();
+
+	return tree;
 }
 
 struct ast_node *binexpr(int ptp)

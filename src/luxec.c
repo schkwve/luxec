@@ -27,6 +27,7 @@
 #include <interp.h>
 #include <scanner.h>
 #include <statement.h>
+#include <sym.h>
 
 int main(int argc, char *argv[])
 {
@@ -51,6 +52,9 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Unable to open 'out.s': %s\n", strerror(errno));
 		exit(1);
 	}
+
+	// ensure printint() is defined
+	addglob("printint", P_CHAR, S_FUNC, 0);
 
 	scan(&Token);
 	gen_preamble();

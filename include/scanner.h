@@ -15,5 +15,6 @@
 
 int scan_int(int c);
 int scan(struct token *t);
+void reject_token(struct token *t);
 
 #endif /* __SCANNER_H_ */

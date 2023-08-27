@@ -19,6 +19,8 @@
 #include <scanner.h>
 #include <misc.h>
 
+static struct token *RejToken = NULL;
+
 static void putback(int c)
 {
 	Putback = c;
@@ -91,9 +93,19 @@ static int keyword(char *s)
 			return T_INT;
 		}
 		break;
+	case 'l':
+		if (strcmp(s, "long") == 0) {
+			return T_LONG;
+		}
+		break;
 	case 'p':
 		if (strcmp(s, "print") == 0) {
 			return T_PRINT;
+		}
+		break;
+	case 'r':
+		if (strcmp(s, "return") == 0) {
+			return T_RETURN;
 		}
 		break;
 	case 'v':
@@ -150,12 +162,18 @@ int scan(struct token *t)
 	int c;
 	int token_type;
 
+	if (RejToken != NULL) {
+		t = RejToken;
+		RejToken = NULL;
+		return 1;
+	}
+
 	c = skip();
 
 	switch (c) {
 	case EOF:
 		t->token = T_EOF;
-		return (0);
+		return 0;
 	case '+':
 		t->token = T_PLUS;
 		break;
@@ -234,4 +252,13 @@ int scan(struct token *t)
 	}
 
 	return 1;
+}
+
+void reject_token(struct token *t)
+{
+	if (RejToken != NULL) {
+		fatal("Can't reject token twice");
+	}
+
+	RejToken = t;
 }

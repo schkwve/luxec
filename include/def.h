@@ -37,6 +37,8 @@ enum {
 	A_WHILE,
 
 	A_FUNC,
+	A_FUNCCALL,
+	A_RETURN,
 
 	A_WIDEN
 };
@@ -72,9 +74,12 @@ enum {
 	// Keywords
 	T_PRINT,
 
-	T_INT,
 	T_CHAR,
+	T_INT,
+	T_LONG,
 	T_VOID,
+
+	T_RETURN,
 
 	T_IF,
 	T_ELSE,
@@ -83,7 +88,7 @@ enum {
 };
 
 // Primitive types
-enum { P_NONE, P_VOID, P_CHAR, P_INT };
+enum { P_NONE, P_VOID, P_CHAR, P_INT, P_LONG };
 
 // Structural types
 enum { S_VAR, S_FUNC };
@@ -112,6 +117,7 @@ struct symtable {
 	char *name;
 	int type;
 	int stype;
+	int end_label;
 };
 
 #endif /* __DEF_H_ */

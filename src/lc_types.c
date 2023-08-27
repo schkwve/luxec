@@ -14,13 +14,13 @@
 #include <def.h>
 #include <data.h>
 
+#include <codegen.h>
 #include <lc_types.h>
 
 int type_compat(int *left, int *right, int only_right)
 {
-	if ((*left == P_VOID) || (*right == P_VOID)) {
-		return 0;
-	}
+	int left_size;
+	int right_size;
 
 	if (*left == *right) {
 		*left = 0;
@@ -28,12 +28,20 @@ int type_compat(int *left, int *right, int only_right)
 		return 1;
 	}
 
-	if ((*left == P_CHAR) && (*right == P_INT)) {
+	left_size = gen_primesize(*left);
+	right_size = gen_primesize(*right);
+
+	if ((left_size == 0) || (right_size == 0)) {
+		return 0;
+	}
+
+	if (left_size < right_size) {
 		*left = A_WIDEN;
 		*right = 0;
 		return 1;
 	}
-	if ((*left == P_INT) && (*right == P_CHAR)) {
+
+	if (right_size < left_size) {
 		if (only_right) {
 			return 0;
 		}

@@ -22,6 +22,9 @@ static char *reglist[4] = { "%r8", "%r9", "%r10", "%r11" };
 static char *cmplist[] = { "sete", "setne", "setl", "setg", "setle", "setge" };
 static char *invcmplist[] = { "jne", "je", "jge", "jle", "jg", "jl" };
 
+// P_NONE, P_VOID, P_CHAR, P_INT, P_LONG
+static int psize[] = { 0, 0, 1, 4, 8 };
+
 // Set all registers as available
 void free_allregs(void)
 {
@@ -80,8 +83,9 @@ void cgpreamble(void)
 					 "\n");
 }
 
-void cgfuncpreamble(char *name)
+void cgfuncpreamble(int id)
 {
+	char *name = Gsym[id].name;
 	fprintf(OutFile,
 			"\t.text\n"
 			"\t.globl\t%s\n"
@@ -92,10 +96,10 @@ void cgfuncpreamble(char *name)
 			name, name, name);
 }
 
-void cgfuncpostamble()
+void cgfuncpostamble(int id)
 {
-	fprintf(OutFile, "\tmovl	$0, %%eax\n"
-					 "\tpopq	%%rbp\n"
+	cglabel(Gsym[id].end_label);
+	fprintf(OutFile, "\tpopq %%rbp\n"
 					 "\tret\n");
 }
 
@@ -107,8 +111,9 @@ int cgload(int value)
 	return r;
 }
 
-int cgloadint(int val)
+int cgloadint(int val, int type)
 {
+	(void)type;
 	int r = alloc_reg();
 	fprintf(OutFile, "\tmovq\t$%d, %s\n", val, reglist[r]);
 	return r;
@@ -212,36 +217,85 @@ int cgcompare_and_jump(int ast_op, int a, int b, int label)
 	return NOREG;
 }
 
+int cgcall(int r, int id)
+{
+	int outr = alloc_reg();
+
+	fprintf(OutFile, "\tmovq\t%s, %%rdi\n", reglist[r]);
+	fprintf(OutFile, "\tcall\t%s\n", Gsym[id].name);
+	fprintf(OutFile, "\tmovq\t%%rax, %s\n", reglist[outr]);
+	free_reg(r);
+
+	return outr;
+}
+
+void cgreturn(int reg, int id)
+{
+	switch (Gsym[id].type) {
+	case P_CHAR:
+		fprintf(OutFile, "\tmovzbl\t%sb, %%eax\n", reglist[reg]);
+		break;
+	case P_INT:
+		fprintf(OutFile, "\tmovl\t%sd, %%eax\n", reglist[reg]);
+		break;
+	case P_LONG:
+		fprintf(OutFile, "\tmovq\t%s, %%rip\n", reglist[reg]);
+		break;
+	default:
+		fatald("Bad function type in cgreturn:", Gsym[id].type);
+	}
+
+	cgjump(Gsym[id].end_label);
+}
+
 int cgloadglob(int id)
 {
 	int r = alloc_reg();
 
-	if (Gsym[id].type == P_INT) {
-		fprintf(OutFile, "\tmovq\t%s(\%%rip), %s\n", Gsym[id].name, reglist[r]);
-	} else {
+	switch (Gsym[id].type) {
+	case P_CHAR:
 		fprintf(OutFile, "\tmovzbq\t%s(\%%rip), %s\n", Gsym[id].name,
 				reglist[r]);
+		break;
+	case P_INT:
+		fprintf(OutFile, "\tmovzb\t%s(\%%rip), %s\n", Gsym[id].name,
+				reglist[r]);
+		break;
+	case P_LONG:
+		fprintf(OutFile, "\tmovq\t%s(\%%rip), %s\n", Gsym[id].name, reglist[r]);
+		break;
+	default:
+		fatald("Bad type in cgloadglob:", Gsym[id].type);
 	}
 	return r;
 }
 
 int cgstoreglob(int r, int id)
 {
-	if (Gsym[id].type == P_INT) {
+	switch (Gsym[id].type) {
+	case P_CHAR:
+		fprintf(OutFile, "\tmovb\t%sb, %s(\%%rip)\n", reglist[r],
+				Gsym[id].name);
+		break;
+	case P_INT:
+		fprintf(OutFile, "\tmovl\t%sd, %s(\%%rip)\n", reglist[r],
+				Gsym[id].name);
+		break;
+	case P_LONG:
 		fprintf(OutFile, "\tmovq\t%s, %s(\%%rip)\n", reglist[r], Gsym[id].name);
-	} else {
-		fprintf(OutFile, "\tmovb\t%s, %s(\%%rip)\n", reglist[r], Gsym[id].name);
+		break;
+	default:
+		fatald("Bad type in cgstoreglob:", Gsym[id].type);
 	}
+
 	return r;
 }
 
 void cgglobsym(int id)
 {
-	if (Gsym[id].type == P_INT) {
-		fprintf(OutFile, "\t.comm\t%s,8,8\n", Gsym[id].name);
-	} else {
-		fprintf(OutFile, "\t.comm\t%s,1,1\n", Gsym[id].name);
-	}
+	int type_size = cgprimsize(Gsym[id].type);
+	fprintf(OutFile, "\t.comm\t%s,%d,%d\n", Gsym[id].name, type_size,
+			type_size);
 }
 
 void cgprintint(int r)
@@ -249,6 +303,15 @@ void cgprintint(int r)
 	fprintf(OutFile, "\tmovq\t%s, %%rdi\n", reglist[r]);
 	fprintf(OutFile, "\tcall\tprintint\n");
 	free_reg(r);
+}
+
+int cgprimsize(int type)
+{
+	if (type < P_NONE || type > P_LONG) {
+		fatal("Bad type in cgprimsize()");
+	}
+
+	return psize[type];
 }
 
 int cgwiden(int r, int old_type, int new_type)
@@ -276,4 +339,9 @@ void gen_printint(int reg)
 void gen_globsym(int id)
 {
 	cgglobsym(id);
+}
+
+int gen_primesize(int type)
+{
+	return cgprimsize(type);
 }

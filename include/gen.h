@@ -13,6 +13,7 @@
 
 #include <ast.h>
 
+int label(void);
 int gen_ast(struct ast_node *node, int reg, int parent_ast_op);
 
 #endif /* __GEN_H_ */

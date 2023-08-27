@@ -21,6 +21,7 @@ struct ast_node *if_statement(void);
 struct ast_node *while_statement(void);
 struct ast_node *for_statement(void);
 struct ast_node *print_statement(void);
+struct ast_node *return_statement(void);
 
 void semi(void);
 void ident(void);

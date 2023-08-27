@@ -25,5 +25,6 @@ extern_ int Putback;
 extern_ FILE *InFile;
 extern_ FILE *OutFile;
 extern_ struct token Token;
+extern_ int FuncId;
 
 #endif /* __DATA_H_ */

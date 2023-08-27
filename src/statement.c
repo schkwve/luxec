@@ -31,6 +31,7 @@ struct ast_node *single_statement(void)
 		return print_statement();
 	case T_CHAR:
 	case T_INT:
+	case T_LONG:
 		var_declar();
 		return NULL;
 	case T_IDENT:
@@ -41,6 +42,8 @@ struct ast_node *single_statement(void)
 		return while_statement();
 	case T_FOR:
 		return for_statement();
+	case T_RETURN:
+		return return_statement();
 	default:
 		fatald("Syntax error, token", Token.token);
 		break;
@@ -59,14 +62,17 @@ struct ast_node *compound_statement(void)
 	while (1) {
 		tree = single_statement();
 
-		if (tree != NULL && (tree->op == A_PRINT || tree->op == A_ASSIGN))
+		if (tree != NULL && (tree->op == A_PRINT || tree->op == A_ASSIGN ||
+							 tree->op == A_RETURN || tree->op == A_FUNCCALL)) {
 			semi();
+		}
 
 		if (tree != NULL) {
-			if (left == NULL)
+			if (left == NULL) {
 				left = tree;
-			else
+			} else {
 				left = make_ast_node(A_GLUE, P_NONE, left, NULL, tree, 0);
+			}
 		}
 
 		if (Token.token == T_RBRACE) {
@@ -87,7 +93,12 @@ struct ast_node *assign_statement(void)
 
 	ident();
 
-	if ((id = findglob(Text)) == -1) {
+	if (Token.token == T_LPAREN) {
+		return func_call();
+	}
+
+	id = findglob(Text);
+	if (id == -1) {
 		fatals("Undeclared variable", Text);
 	}
 
@@ -213,6 +224,37 @@ struct ast_node *print_statement(void)
 	}
 
 	tree = make_ast_unary(A_PRINT, P_NONE, tree, 0);
+
+	return tree;
+}
+
+struct ast_node *return_statement(void)
+{
+	struct ast_node *tree;
+	int ret_type;
+	int func_type;
+
+	if (Gsym[FuncId].type == P_VOID) {
+		fatal("Can't return from a void function");
+	}
+
+	match(T_RETURN, "return");
+	lparen();
+
+	tree = binexpr(0);
+
+	ret_type = tree->type;
+	func_type = Gsym[FuncId].type;
+	if (!type_compat(&ret_type, &func_type, 1)) {
+		fatal("Incompatible types");
+	}
+
+	if (ret_type) {
+		tree = make_ast_unary(ret_type, func_type, tree, 0);
+	}
+
+	tree = make_ast_unary(A_RETURN, P_NONE, tree, 0);
+	rparen();
 
 	return tree;
 }

@@ -11,7 +11,7 @@
 #ifndef __SYM_H_
 #define __SYM_H_
 
-int addglob(char *name, int type, int stype);
+int addglob(char *name, int type, int stype, int end_label);
 int findglob(char *s);
 
 #endif /* __SYM_H_ */

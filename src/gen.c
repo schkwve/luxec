@@ -17,12 +17,7 @@
 #include <ast.h>
 #include <codegen.h>
 #include <gen.h>
-
-static int label(void)
-{
-	static int id = 1;
-	return id++;
-}
+#include <misc.h>
 
 static int gen_if_ast(struct ast_node *node)
 {
@@ -76,6 +71,12 @@ static int gen_while_ast(struct ast_node *node)
 	return NOREG;
 }
 
+int label(void)
+{
+	static int id = 1;
+	return id++;
+}
+
 int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 {
 	int left_reg;
@@ -93,18 +94,16 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 		gen_freeregs();
 		return NOREG;
 	case A_FUNC:
-		cgfuncpreamble(Gsym[node->v.id].name);
+		cgfuncpreamble(node->v.id);
 		gen_ast(node->left, NOREG, node->op);
-		cgfuncpostamble();
+		cgfuncpostamble(node->v.id);
 		return NOREG;
 	}
 
-	if (node->left) {
+	if (node->left)
 		left_reg = gen_ast(node->left, NOREG, node->op);
-	}
-	if (node->right) {
+	if (node->right)
 		right_reg = gen_ast(node->right, left_reg, node->op);
-	}
 
 	switch (node->op) {
 	case A_ADD:
@@ -115,33 +114,38 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 		return cgmul(left_reg, right_reg);
 	case A_DIVIDE:
 		return cgdiv(left_reg, right_reg);
-	case A_INTLIT:
-		return cgloadint(node->v.int_val);
-	case A_IDENT:
-		return cgloadglob(node->v.id);
-	case A_LVIDENT:
-		return cgstoreglob(reg, node->v.id);
-	case A_WIDEN:
-		return cgwiden(left_reg, node->left->type, node->type);
-	case A_ASSIGN:
-		return right_reg;
-	case A_PRINT:
-		gen_printint(left_reg);
-		gen_freeregs();
-		return NOREG;
 	case A_EQ:
 	case A_NE:
 	case A_LT:
 	case A_GT:
 	case A_LE:
 	case A_GE:
-		if (parent_ast_op == A_IF || parent_ast_op == A_WHILE) {
+		if (parent_ast_op == A_IF || parent_ast_op == A_WHILE)
 			return cgcompare_and_jump(node->op, left_reg, right_reg, reg);
-		} else {
+		else
 			return cgcompare_and_set(node->op, left_reg, right_reg);
-		}
+	case A_INTLIT:
+		return cgloadint(node->v.int_val, node->type);
+	case A_IDENT:
+		return cgloadglob(node->v.id);
+	case A_LVIDENT:
+		return cgstoreglob(reg, node->v.id);
+	case A_ASSIGN:
+		return right_reg;
+	case A_PRINT:
+		gen_printint(left_reg);
+		gen_freeregs();
+		return NOREG;
+	case A_WIDEN:
+		return cgwiden(left_reg, node->left->type, node->type);
+	case A_RETURN:
+		cgreturn(left_reg, FuncId);
+		return NOREG;
+	case A_FUNCCALL:
+		return cgcall(left_reg, node->v.id);
 	default:
-		fprintf(stderr, "Unknown AST operator %d\n", node->op);
-		exit(1);
+		fatald("Unknown AST operator", node->op);
 	}
+
+	return NOREG;
 }

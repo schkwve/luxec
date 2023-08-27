@@ -16,6 +16,7 @@
 #include <ast.h>
 #include <decl.h>
 #include <statement.h>
+#include <gen.h>
 #include <codegen.h>
 #include <misc.h>
 #include <scanner.h>
@@ -28,6 +29,9 @@ int parse_type(int t)
 	}
 	if (t == T_INT) {
 		return P_INT;
+	}
+	if (t == T_LONG) {
+		return P_LONG;
 	}
 	if (t == T_VOID) {
 		return P_VOID;
@@ -45,7 +49,7 @@ void var_declar(void)
 	type = parse_type(Token.token);
 	scan(&Token);
 	ident();
-	id = addglob(Text, type, S_VAR);
+	id = addglob(Text, type, S_VAR, 0);
 	gen_globsym(id);
 	semi();
 }
@@ -53,16 +57,30 @@ void var_declar(void)
 struct ast_node *func_declar(void)
 {
 	struct ast_node *tree;
+	struct ast_node *final_statement;
 	int name_slot;
+	int type;
+	int end_label;
 
-	match(T_VOID, "void");
-
+	type = parse_type(Token.token);
+	scan(&Token);
 	ident();
-	name_slot = addglob(Text, P_VOID, S_FUNC);
+
+	end_label = label();
+	name_slot = addglob(Text, type, S_FUNC, end_label);
+	FuncId = name_slot;
+
 	lparen();
 	rparen();
 
 	tree = compound_statement();
 
-	return make_ast_unary(A_FUNC, P_VOID, tree, name_slot);
+	if (type != P_VOID) {
+		final_statement = (tree->op == A_GLUE) ? tree->right : tree;
+		if (final_statement == NULL || final_statement->op != A_RETURN) {
+			fatal("No return for function with non-void type");
+		}
+	}
+
+	return make_ast_unary(A_FUNC, type, tree, name_slot);
 }

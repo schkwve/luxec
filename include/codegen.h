@@ -11,11 +11,11 @@
 #ifndef __CODEGEN_H_
 #define __CODEGEN_H_
 
-void cgfuncpreamble(char *name);
-void cgfuncpostamble(void);
+void cgfuncpreamble(int id);
+void cgfuncpostamble(int id);
 
 int cgload(int val);
-int cgloadint(int val);
+int cgloadint(int val, int type);
 
 void cglabel(int l);
 void cgjump(int l);
@@ -35,14 +35,20 @@ int cggreaterequal(int a, int b);
 int cgcompare_and_set(int ast_op, int a, int b);
 int cgcompare_and_jump(int ast_op, int a, int b, int label);
 
+int cgcall(int r, int id);
+void cgreturn(int reg, int id);
+
 int cgloadglob(int id);
 int cgstoreglob(int r, int id);
 
+int cgprimsize(int type);
 int cgwiden(int r, int old_type, int new_type);
 
 void gen_preamble();
 void gen_freeregs();
 void gen_printint(int a);
 void gen_globsym(int id);
+int gen_label(void);
+int gen_primesize(int type);
 
 #endif /* __CODEGEN_H_ */

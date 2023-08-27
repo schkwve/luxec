@@ -29,7 +29,7 @@ static int newglob(void)
 	return p;
 }
 
-int addglob(char *name, int type, int stype)
+int addglob(char *name, int type, int stype, int end_label)
 {
 	int y = findglob(name);
 
@@ -40,6 +40,7 @@ int addglob(char *name, int type, int stype)
 	Gsym[y].name = __strdup(name);
 	Gsym[y].type = type;
 	Gsym[y].stype = stype;
+	Gsym[y].end_label = end_label;
 	return y;
 }
 
