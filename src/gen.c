@@ -138,6 +138,18 @@ int gen_ast(struct ast_node *node, int reg, int parent_ast_op)
 		return NOREG;
 	case A_WIDEN:
 		return cgwiden(left_reg, node->left->type, node->type);
+	case A_SCALE:
+		switch (node->v.size) {
+		case 2:
+			return cgshlconst(left_reg, 1);
+		case 4:
+			return cgshlconst(left_reg, 2);
+		case 8:
+			return cgshlconst(left_reg, 3);
+		default:
+			right_reg = cgloadint(node->v.size, P_INT);
+			return cgmul(left_reg, right_reg);
+		}
 	case A_RETURN:
 		cgreturn(left_reg, FuncId);
 		return NOREG;

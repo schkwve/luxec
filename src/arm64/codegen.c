@@ -137,16 +137,17 @@ void cgfuncpostamble(int id)
 
 int cgaddress(int id)
 {
-	// placeholder
+	// @todo
 	(void)id;
 	return NOREG;
 }
 
 int cgderef(int r, int type)
 {
-	// placeholder
+	// @todo
 	(void)r;
 	(void)type;
+	fatal("cgshlconst() is not implemented yet!");
 	return NOREG;
 }
 
@@ -240,6 +241,15 @@ int cgcall(int r, int id)
 	fprintf(OutFile, "\tmov\t%s, r0\n", reglist[r]);
 
 	return r;
+}
+
+int cgshlconst(int r, int val)
+{
+	// @todo
+	(void)r;
+	(void)val;
+	fatal("cgshlconst() is not implemented yet!");
+	return NOREG;
 }
 
 void cgreturn(int reg, int id)

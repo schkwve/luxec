@@ -14,9 +14,27 @@
 #include <def.h>
 #include <data.h>
 
+#include <ast.h>
 #include <codegen.h>
 #include <lc_types.h>
 #include <misc.h>
+
+static int int_type(int type)
+{
+	if (type == P_CHAR || type == P_INT || type == P_LONG) {
+		return 1;
+	}
+	return 0;
+}
+
+static int ptr_type(int type)
+{
+	if (type == P_VOIDPTR || type == P_CHARPTR || type == P_INTPTR ||
+		type == P_LONGPTR) {
+		return 1;
+	}
+	return 0;
+}
 
 int type_compat(int *left, int *right, int only_right)
 {
@@ -54,6 +72,47 @@ int type_compat(int *left, int *right, int only_right)
 	*left = 0;
 	*right = 0;
 	return 1;
+}
+
+struct ast_node *modify_type(struct ast_node *tree, int rtype, int op)
+{
+	int ltype = tree->type;
+	int lsize;
+	int rsize;
+
+	if (int_type(ltype) && int_type(rtype)) {
+		if (ltype == rtype) {
+			return tree;
+		}
+
+		lsize = gen_primesize(ltype);
+		rsize = gen_primesize(rtype);
+
+		if (lsize > rsize) {
+			return NULL;
+		}
+
+		if (rsize > lsize) {
+			return make_ast_unary(A_WIDEN, rtype, tree, 0);
+		}
+	}
+
+	if (ptr_type(ltype)) {
+		if (op == 0 && ltype == rtype) {
+			return tree;
+		}
+	}
+
+	if (op == A_ADD || op == A_SUBTRACT) {
+		if (int_type(ltype) && ptr_type(rtype)) {
+			rsize = gen_primesize(val_at(rtype));
+			if (rsize > 1) {
+				return make_ast_unary(A_SCALE, rtype, tree, rsize);
+			}
+		}
+	}
+
+	return NULL;
 }
 
 int val_at(int type)

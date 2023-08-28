@@ -22,8 +22,8 @@ static char *reglist[4] = { "%r8", "%r9", "%r10", "%r11" };
 static char *cmplist[] = { "sete", "setne", "setl", "setg", "setle", "setge" };
 static char *invcmplist[] = { "jne", "je", "jge", "jle", "jg", "jl" };
 
-// P_NONE, P_VOID, P_CHAR, P_INT, P_LONG
-static int psize[] = { 0, 0, 1, 4, 8 };
+// P_NONE, P_VOID, P_CHAR, P_INT, P_LONG, P_VOIDPTR, P_CHARPTR, P_INTPTR, P_LONGPTR
+static int psize[] = { 0, 0, 1, 4, 8, 8, 8, 8, 8 };
 
 // Set all registers as available
 void free_allregs(void)
@@ -192,6 +192,12 @@ int cgcall(int r, int id)
 	return outr;
 }
 
+int cgshlconst(int r, int val)
+{
+	fprintf(OutFile, "\tsalq\t$%d, %s\n", val, reglist[r]);
+	return r;
+}
+
 void cgreturn(int reg, int id)
 {
 	switch (Gsym[id].type) {
@@ -263,8 +269,24 @@ int cgstoreglob(int r, int id)
 void cgglobsym(int id)
 {
 	int type_size = cgprimsize(Gsym[id].type);
-	fprintf(OutFile, "\t.comm\t%s,%d,%d\n", Gsym[id].name, type_size,
-			type_size);
+
+	fprintf(OutFile,
+			"\t.data\n"
+			"\t.globl\t%s\n",
+			Gsym[id].name);
+	switch (type_size) {
+	case 1:
+		fprintf(OutFile, "%s:\t.byte\t0\n", Gsym[id].name);
+		break;
+	case 4:
+		fprintf(OutFile, "%s:\t.long\t0\n", Gsym[id].name);
+		break;
+	case 8:
+		fprintf(OutFile, "%s:\t.quad\t0\n", Gsym[id].name);
+		break;
+	default:
+		fatald("Unknown type size in cgglobsym: ", type_size);
+	}
 }
 
 void cgprintint(int r)

@@ -90,8 +90,6 @@ struct ast_node *assign_statement(void)
 	struct ast_node *left;
 	struct ast_node *right;
 	struct ast_node *tree;
-	int left_type;
-	int right_type;
 	int id;
 
 	ident();
@@ -110,15 +108,9 @@ struct ast_node *assign_statement(void)
 	match(T_ASSIGN, "=");
 
 	left = binexpr(0);
-
-	left_type = left->type;
-	right_type = right->type;
-	if (!type_compat(&left_type, &right_type, 1)) {
-		fatal("Incompatible types");
-	}
-
-	if (left_type) {
-		left = make_ast_unary(left_type, right->type, left, 0);
+	left = modify_type(left, right->type, 0);
+	if (left == NULL) {
+		fatal("Incompatible expression in assignment");
 	}
 
 	tree = make_ast_node(A_ASSIGN, P_INT, left, NULL, right, 0);
@@ -136,7 +128,6 @@ struct ast_node *if_statement(void)
 	lparen();
 
 	cond_ast = binexpr(0);
-
 	if (cond_ast->op < A_EQ || cond_ast->op > A_GE) {
 		fatal("Bad comparison operator");
 	}
@@ -209,21 +200,13 @@ struct ast_node *for_statement(void)
 struct ast_node *print_statement(void)
 {
 	struct ast_node *tree;
-	int left_type;
-	int right_type;
 
 	match(T_PRINT, "print");
 
 	tree = binexpr(0);
-
-	left_type = P_INT;
-	right_type = tree->type;
-	if (!type_compat(&left_type, &right_type, 0)) {
-		fatal("Incompatible types");
-	}
-
-	if (right_type) {
-		tree = make_ast_unary(right_type, P_INT, tree, 0);
+	tree = modify_type(tree, P_INT, 0);
+	if (tree == NULL) {
+		fatal("Incompatible type to print");
 	}
 
 	tree = make_ast_unary(A_PRINT, P_NONE, tree, 0);
@@ -234,8 +217,6 @@ struct ast_node *print_statement(void)
 struct ast_node *return_statement(void)
 {
 	struct ast_node *tree;
-	int ret_type;
-	int func_type;
 
 	if (Gsym[FuncId].type == P_VOID) {
 		fatal("Can't return from a void function");
@@ -245,15 +226,9 @@ struct ast_node *return_statement(void)
 	lparen();
 
 	tree = binexpr(0);
-
-	ret_type = tree->type;
-	func_type = Gsym[FuncId].type;
-	if (!type_compat(&ret_type, &func_type, 1)) {
-		fatal("Incompatible types");
-	}
-
-	if (ret_type) {
-		tree = make_ast_unary(ret_type, func_type, tree, 0);
+	tree = modify_type(tree, Gsym[FuncId].type, 0);
+	if (tree == NULL) {
+		fatal("Incompatible type to return");
 	}
 
 	tree = make_ast_unary(A_RETURN, P_NONE, tree, 0);

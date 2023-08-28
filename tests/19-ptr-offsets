@@ -1,0 +1,16 @@
+int a;
+int b;
+int *c;
+int d;
+
+int main()
+{
+	a = 12;
+	b = 18;
+	printint(a);
+	c = &a + 1;
+	d = *c;
+	printint(d);
+
+	return(0);
+}

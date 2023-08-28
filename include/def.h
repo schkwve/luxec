@@ -43,7 +43,8 @@ enum {
 	A_FUNCCALL,
 	A_RETURN,
 
-	A_WIDEN
+	A_WIDEN,
+	A_SCALE
 };
 
 // token types
@@ -120,6 +121,7 @@ struct ast_node {
 	union {
 		int int_val;
 		int id;
+		int size;
 	} v;
 };
 

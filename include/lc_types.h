@@ -12,6 +12,7 @@
 #define __LC_TYPES_H_
 
 int type_compat(int *left, int *right, int only_right);
+struct ast_node *modify_type(struct ast_node *tree, int rtype, int op);
 
 int val_at(int type);
 int pointer_to(int type);

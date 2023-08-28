@@ -44,6 +44,7 @@ int cgcompare_and_set(int ast_op, int a, int b);
 int cgcompare_and_jump(int ast_op, int a, int b, int label);
 
 int cgcall(int r, int id);
+int cgshlconst(int r, int val);
 void cgreturn(int reg, int id);
 
 int cgloadglob(int id);

@@ -76,7 +76,6 @@ struct ast_node *prefix(void)
 	case T_AMPER:
 		scan(&Token);
 		tree = prefix();
-
 		if (tree->op != A_IDENT) {
 			fatal("& operator must be followed by an identifier");
 		}
@@ -131,8 +130,9 @@ struct ast_node *binexpr(int ptp)
 {
 	struct ast_node *left;
 	struct ast_node *right;
-	int left_type;
-	int right_type;
+	struct ast_node *left_tmp;
+	struct ast_node *right_tmp;
+	int ast_op;
 	int token_type;
 
 	left = prefix();
@@ -147,17 +147,17 @@ struct ast_node *binexpr(int ptp)
 
 		right = binexpr(op_prec[token_type]);
 
-		left_type = left->type;
-		right_type = right->type;
-		if (!type_compat(&left_type, &right_type, 0)) {
-			fatal("Incompatible types");
+		ast_op = arith_op(token_type);
+		left_tmp = modify_type(left, right->type, ast_op);
+		right_tmp = modify_type(right, left->type, ast_op);
+		if (left_tmp == NULL && right_tmp == NULL) {
+			fatal("Incompatible types in binary expression");
 		}
-
-		if (left_type) {
-			left = make_ast_unary(left_type, right->type, left, 0);
+		if (left_tmp != NULL) {
+			left = left_tmp;
 		}
-		if (right_type) {
-			right = make_ast_unary(right_type, left->type, right, 0);
+		if (right_tmp != NULL) {
+			right = right_tmp;
 		}
 
 		left = make_ast_node(arith_op(token_type), left->type, left, NULL,
