@@ -318,6 +318,11 @@ void gen_preamble()
 	cgpreamble();
 }
 
+void gen_postamble()
+{
+	cgpostamble();
+}
+
 void gen_freeregs()
 {
 	free_allregs();

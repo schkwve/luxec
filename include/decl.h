@@ -11,8 +11,10 @@
 #ifndef __DECL_H_
 #define __DECL_H_
 
-void var_declar(void);
 int parse_type(void);
-struct ast_node *func_declar(void);
+
+void global_declar(void);
+void var_declar(int type);
+struct ast_node *func_declar(int type);
 
 #endif /* __DECL_H_ */

@@ -36,11 +36,6 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
-	struct ast_node *tree;
-
-	Line = 1;
-	Putback = '\n';
-
 	InFile = fopen(argv[1], "r");
 	if (InFile == NULL) {
 		fprintf(stderr, "Unable to open '%s': %s\n", argv[1], strerror(errno));
@@ -53,18 +48,16 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	Line = 1;
+	Putback = '\n';
+
 	// ensure printint() is defined
 	addglob("printint", P_CHAR, S_FUNC, 0);
 
 	scan(&Token);
 	gen_preamble();
-
-	while (1) {
-		tree = func_declar();
-		gen_ast(tree, NOREG, 0);
-		if (Token.token == T_EOF)
-			break;
-	}
+	global_declar();
+	gen_postamble();
 
 	fclose(InFile);
 	fclose(OutFile);

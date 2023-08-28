@@ -75,6 +75,7 @@ enum {
 	T_RBRACE,
 	T_LPAREN,
 	T_RPAREN,
+	T_COMMA,
 
 	// Keywords
 	T_PRINT,

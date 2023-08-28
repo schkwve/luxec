@@ -53,6 +53,7 @@ int cgprimsize(int type);
 int cgwiden(int r, int old_type, int new_type);
 
 void gen_preamble();
+void gen_postamble();
 void gen_freeregs();
 void gen_printint(int a);
 void gen_globsym(int id);

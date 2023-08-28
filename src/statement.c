@@ -26,13 +26,16 @@
 
 struct ast_node *single_statement(void)
 {
+	int type;
 	switch (Token.token) {
 	case T_PRINT:
 		return print_statement();
 	case T_CHAR:
 	case T_INT:
 	case T_LONG:
-		var_declar();
+		type = parse_type();
+		ident();
+		var_declar(type);
 		return NULL;
 	case T_IDENT:
 		return assign_statement();

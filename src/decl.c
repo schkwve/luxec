@@ -54,29 +54,55 @@ int parse_type(void)
 	return type;
 }
 
-void var_declar(void)
+void global_declar(void)
 {
-	int id;
+	struct ast_node *tree;
 	int type;
 
-	type = parse_type();
-	ident();
+	while (1) {
+		type = parse_type();
+		ident();
+		if (Token.token == T_LPAREN) {
+			tree = func_declar(type);
+			gen_ast(tree, NOREG, 0);
+		} else {
+			var_declar(type);
+		}
 
-	id = addglob(Text, type, S_VAR, 0);
-	gen_globsym(id);
-	semi();
+		if (Token.token == T_EOF) {
+			break;
+		}
+	}
 }
 
-struct ast_node *func_declar(void)
+void var_declar(int type)
+{
+	int id;
+
+	while (1) {
+		id = addglob(Text, type, S_VAR, 0);
+		gen_globsym(id);
+
+		if (Token.token == T_SEMI) {
+			scan(&Token);
+			return;
+		}
+
+		if (Token.token == T_COMMA) {
+			scan(&Token);
+			ident();
+			continue;
+		}
+		fatal("Missing ',' or ';' after identifier");
+	}
+}
+
+struct ast_node *func_declar(int type)
 {
 	struct ast_node *tree;
 	struct ast_node *final_statement;
 	int name_slot;
-	int type;
 	int end_label;
-
-	type = parse_type();
-	ident();
 
 	end_label = label();
 	name_slot = addglob(Text, type, S_FUNC, end_label);
